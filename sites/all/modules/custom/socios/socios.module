@@ -1,0 +1,217 @@
+<?php 
+//Modulo BASES: Este modulo concentra todas las funcionalidades relacionadas a la gestion y administraión de los datos correspondientes a los diferentes programas que se ejecutan desde la SES
+
+include 'includes/gestionar_socios.inc';
+include 'includes/socio.inc';
+include 'includes/data_access.inc';
+include 'includes/estado_socio.inc';
+include 'includes/datos_socio.inc';
+include 'includes/gestionar_categorias_socio.inc';
+include 'includes/categoria.inc';
+include 'includes/gestionar_estados_socio.inc';
+include 'includes/estado.inc';
+include 'includes/gestionar_tipo_grupo_familiar.inc';
+include 'includes/tipo_grupo_familiar.inc';
+include 'includes/registrar_pagos.inc';
+include 'includes/generar_cupones.inc';
+include 'includes/adjuntar_foto.inc';
+include 'includes/ingreso_socio.inc';
+
+function socios_init(){ 
+  //drupal_add_js(drupal_get_path('module', 'generico') . '/js/generico.js');
+
+} 
+
+function socios_permission(){   
+
+ 
+  return array(
+  	'acceso a gestionar socios' =>  array(
+		'title' => t('Gestion de socios'),
+		'description' => t('Permisos para acceder a la gestion del socio.'),
+	),
+	'acceso a gestionar socio' =>  array(
+		'title' => t('Gestion de socios - Gestionar Socio'),
+		'description' => t('Permisos para acceder a la gestion de un socio en particular.'),
+	),
+	'acceso a cambiar estado del socio' =>  array(
+		'title' => t('Gestion de socios - Cambiar Estado del Socio'),
+		'description' => t('Permisos para acceder a cambiar el estado de un socio.'),
+	),
+	'acceso a datos del socios' =>  array(
+		'title' => t('Gestion de socios - Ver Datos del Socio'),
+		'description' => t('Permisos para acceder a ver datos del socio.'),
+	),
+  'acceso a gestionar categorias del socio' =>  array(
+    'title' => t('Gestion de socios - Gestionar Categorías'),
+    'description' => t('Permisos para acceder a gestionar las categorías de socios.'),
+  ),
+  'acceso a gestionar una categoria del socio' =>  array(
+    'title' => t('Gestion de socios - Categoria de socio'),
+    'description' => t('Permisos para acceder a Alta, modificación y visualización de las categorías de socio.'),
+  ),
+  'acceso a gestionar estados del socio' =>  array(
+    'title' => t('Gestion de socios - Gestionar Estados del socio'),
+    'description' => t('Permisos para acceder a gestionar los estados de socio.'),
+  ),
+  'acceso a gestionar estado de socio' =>  array(
+    'title' => t('Gestion de socios - Estado de socio'),
+    'description' => t('Permisos para acceder a Alta, modificación y visualización de los estados de socio.'),
+  ),
+  'acceso a gestionar tipos de grupo familiar' =>  array(
+    'title' => t('Gestion de socios - Gestionar tipos de grupo familiar'),
+    'description' => t('Permisos para acceder a gestionar tipos de grupo familiar.'),
+  ),
+  'acceso a gestionar tipo de grupo familiar' =>  array(
+    'title' => t('Gestion de socios - Tipo de grupo familiar'),
+    'description' => t('Permisos para acceder a Alta, modificación y visualización de un tipo de grupo familiar.'),
+  ),
+  'acceso a registrar pagos' =>  array(
+    'title' => t('Gestion de socios - Registrar pagos'),
+    'description' => t('Permisos para acceder a registrar pagos de cuotas.'),
+  ),
+  'acceso a generar cupones' =>  array(
+    'title' => t('Gestion de socios - Generar cupones'),
+    'description' => t('Permisos para generar cupones de pago de cuota.'),
+  ),
+  'acceso a adjuntar foto' =>  array(
+    'title' => t('Gestion de socios - Adjuntar foto'),
+    'description' => t('Permisos para adjuntar foto de socio.'),
+  ),
+  'acceso a ingreso socios' =>  array(
+    'title' => t('Gestion de socios - Control de Ingreso de Socios'),
+    'description' => t('Permisos para acceder al Control de Ingresos de Socios.'),
+  ),
+  );
+}
+
+/**
+* Implements hook_help()
+*/
+
+function socios_help($path, $arg){
+  switch ($path) {
+    case 'socios/manage':
+      // Help text for the simple page registered for this path.
+      return t('This section displays the list of Pages.');
+  }
+}
+
+/**
+* Implements hook_menu()
+*/
+
+function socios_menu()
+{
+  /*------ ITEMS DE MENU PARA GESTION FINANCIERA -------*/
+  $items['socios/gestionar_socios'] = array(
+    'title' => 'SOCIOS',
+    'page callback' => 'drupal_get_form',
+    'page arguments' => array('gestionar_socios_form'), 
+    'access arguments' => array('acceso a gestionar socios'),    
+    'expanded' => TRUE,
+  );//gestionar_socios.inc
+
+  $items['socios/datos_socio'] = array(
+    'title' => 'SOCIOS',
+    'page callback' => 'drupal_get_form',
+    'page arguments' => array('datos_socio_form'), 
+    'access arguments' => array('acceso a datos del socios'),    
+    'expanded' => TRUE,
+  );//gestionar_socios.inc
+  
+  $items['socios/socio'] = array(
+    'title' => 'SOCIO',
+    'page callback' => 'drupal_get_form',
+    'page arguments' => array('socio_form'), 
+    'access arguments' => array('acceso a gestionar socio'),    
+    'expanded' => TRUE,
+  );//socios.inc
+
+  $items['/estado_socio'] = array(
+    'title' => 'ESTADO DEL SOCIO',
+    'page callback' => 'drupal_get_form',
+    'page arguments' => array('estado_socio_form'), 
+    'access arguments' => array('acceso a cambiar estado del socio'),    
+    'expanded' => TRUE,
+  );//estado_socio.inc
+   $items['titular/autocomplete'] = array(
+      'title' => 'Autocomplete titular',
+      'page callback' => '_titular_autocomplete',
+      'access arguments' => array('use autocomplete'),  //or whatever permission makes sense
+      'type' => MENU_CALLBACK
+    );
+  $items['socios/gestionar_categorias_socio'] = array(
+    'title' => 'CATEGORIAS DEL SOCIO',
+    'page callback' => 'drupal_get_form',
+    'page arguments' => array('gestionar_categorias_form'), 
+    'access arguments' => array('acceso a gestionar categorias del socio'),    
+    'expanded' => TRUE,
+  );//gestionar_categorias_socio.inc
+  $items['socios/categoria'] = array(
+    'title' => 'CATEGORIA',
+    'page callback' => 'drupal_get_form',
+    'page arguments' => array('categoria_form'), 
+    'access arguments' => array('acceso a gestionar una categoria del socio'),    
+    'expanded' => TRUE,
+  );//categoria.inc
+  $items['socios/gestionar_estados_socio'] = array(
+    'title' => 'ESTADOS DEL SOCIO',
+    'page callback' => 'drupal_get_form',
+    'page arguments' => array('gestionar_estados_socio_form'), 
+    'access arguments' => array('acceso a gestionar estados del socio'),    
+    'expanded' => TRUE,
+  );//gestionar_estados_socio.inc
+  $items['socios/estados_socio'] = array(
+    'title' => 'ESTADO DE SOCIO',
+    'page callback' => 'drupal_get_form',
+    'page arguments' => array('estado_form'), 
+    'access arguments' => array('acceso a gestionar estado de socio'),    
+    'expanded' => TRUE,
+  );//estado.inc  
+  $items['socios/gestionar_tipo_grupo_familiar'] = array(
+    'title' => 'TIPOS DE GRUPO FAMILIAR',
+    'page callback' => 'drupal_get_form',
+    'page arguments' => array('gestionar_tipo_grupo_familiar_form'), 
+    'access arguments' => array('acceso a gestionar tipos de grupo familiar'),    
+    'expanded' => TRUE,
+  );//gestionar_tipo_grupo_familiar.inc
+  $items['socios/tipo_grupo_familiar'] = array(
+    'title' => 'TIPO DE GRUPO FAMILIAR',
+    'page callback' => 'drupal_get_form',
+    'page arguments' => array('tipo_grupo_familiar_form'), 
+    'access arguments' => array('acceso a gestionar tipo de grupo familiar'),    
+    'expanded' => TRUE,
+  );//tipo_grupo_familiar.inc  
+  $items['socios/registrar_pagos'] = array(
+    'title' => 'REGISTRAR PAGOS',
+    'page callback' => 'drupal_get_form',
+    'page arguments' => array('registrar_pagos_form'), 
+    'access arguments' => array('acceso a registrar pagos'),    
+    'expanded' => TRUE,
+  );//registrar_pagos.inc    
+  $items['socios/generar_cupones'] = array(
+    'title' => 'REGISTRAR PAGOS',
+    'page callback' => 'drupal_get_form',
+    'page arguments' => array('generar_cupones_form'), 
+    'access arguments' => array('acceso a generar cupones'),    
+    'expanded' => TRUE,
+  );//generar_cupones.inc 
+  $items['socios/adjuntar_foto'] = array(
+    'title' => 'ADJUNTAR FOTO',
+    'page callback' => 'drupal_get_form',
+    'page arguments' => array('adjuntar_foto_form'), 
+    'access arguments' => array('acceso a adjuntar foto'),    
+    'expanded' => TRUE,
+  );//adjuntar_foto.inc    
+  $items['socios/ingreso_socio'] = array(
+    'title' => 'CONTROL DE INGRESO',
+    'page callback' => 'drupal_get_form',
+    'page arguments' => array('ingreso_socio_form'), 
+    'access arguments' => array('acceso a ingreso socios'),    
+    'expanded' => TRUE,
+  );//ingreso_socio.inc    
+  
+  return $items;
+}
+?>

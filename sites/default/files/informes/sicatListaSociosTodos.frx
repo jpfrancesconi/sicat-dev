@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE root [
+<!ENTITY nbsp "&#160;">
+]>
+<html xmlns:frx="urn:FrxReports">
+<head>
+<title>Listado de Socios</title>
+<frx:category/>
+<frx:parameters>
+  <frx:parm id="soc_cod_baja" label="Filtrar por Socio:" require="1" data_source="dbsicat/sicatListaSociosParamSINOTODOS" type="select">ACTIVO</frx:parm>
+  <frx:parm id="apellido" label="Filtrar por Apellido y/o Nombre:" type="textfield"/>
+</frx:parameters>
+<frx:docgen>
+  <frx:doc type="xls"/>
+  <frx:doc type="pdf"/>
+</frx:docgen>
+<frx:fields>
+</frx:fields>
+<frx:menu/>
+<frx:cache/>
+<style></style>
+<frx:options input_format="full_html" skin="talleres"/></head>
+<body>
+<div id="totales_block" class="FrxTable" frx:block="dbsicat/sicatListaSociosTodosTotal">
+  <p id="totales" frx:foreach="*"> Cantidad Total de Socios: <strong>{TOTAL_SOCIOS}</strong> filtrado por estado: {parm.soc_cod_baja}</p>
+</div>  
+<div id="_block" class="FrxTable catTable" frx:block="dbsicat/sicatListaSociosTodos">
+  <table id="dt">
+      <thead>
+        <tr>
+          <th>Nº SOCIO</th>
+          <th>Nº SECUENCIA</th>
+          <th>APELLIDO</th>
+          <th>DIRECCION</th>
+          <th>TELEFONO</th>
+          <th>DETALLES</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr id="io" frx:foreach="*">
+          <td>{NRO_SOCIO}</td>
+          <td>{NRO_SEC}</td>
+          <td>{APELLIDO}</td>
+          <td>{DOMICILIO}</td>
+          <td>{TELEFONO}</td>
+          <td> 
+            <span frx:if="{PRINCIPAL}"><a class="colorbox-node" href="sicatListaSociosDetalle?NRO_SOCIO={NRO_SOCIO}&amp;width=700px;&amp;height=800px;">VER DETALLE</a>
+            </span>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+</body>
+</html>

@@ -1,0 +1,34 @@
+<?php 
+include 'includes/utils.inc';
+include 'includes/data_access.inc';
+//Modulo GENERICO: Este modulo concentra todas las funcionalidades que son de uso compartido por el resto de los modulos del sistema de gestion
+
+function generico_init(){ 
+  //drupal_add_js(drupal_get_path('module', 'generico') . '/js/generico.js');
+
+} 
+
+function generico_permission(){   
+}
+
+/**
+* Implements hook_help()
+*/
+
+function generico_help($path, $arg){
+  switch ($path) {
+    case 'generico/manage':
+      // Help text for the simple page registered for this path.
+      return t('This section displays the list of Pages.');
+  }
+}
+
+/**
+* Implements hook_menu()
+*/
+
+function generico_menu()
+{
+  
+}
+?>

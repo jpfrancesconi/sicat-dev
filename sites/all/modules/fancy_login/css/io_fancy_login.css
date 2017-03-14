@@ -1,0 +1,133 @@
+div#fancy_login_login_box {
+    border-radius: 0;
+}
+
+div#fancy_login_login_box #fancy_login_messages_container_wrapper {
+    z-index: 99999;
+}
+
+div#fancy_login_login_box form#user-login-form textarea:focus, 
+div#fancy_login_login_box input:focus
+{
+	outline: none;
+}
+
+div#fancy_login_login_box #fancy_login_close_button {
+		border-style: none;
+    border-radius: 100%;
+    color: #FFF;
+    background-color: #EA8383;
+    float: right;
+    font-size: 15px;
+    font-weight: bold;
+    margin-right: -10px;
+    margin-top: 3px
+;    padding-left: 3px;
+    padding-right: 3px;
+    width: 40px;
+    text-align: center;
+    height: 40px;
+    padding-top: 7px;
+}
+
+
+div#fancy_login_login_box #fancy_login_close_button:hover
+{
+	text-decoration:none;
+	background-color:#FFF;
+	color:#EA8383;
+	transition: 1s;
+	-webkit-transition:1s;
+}
+
+div#fancy_login_login_box #fancy_login_login_box .form-text{
+    border: none;
+    border-bottom-style: solid;
+    border-bottom-width: 2px;
+    border-bottom-color: #EA8383;
+    width: 100%;
+    color:#4E4E4E;
+}
+
+div#fancy_login_login_box #fancy_login_login_box .form-text:hover{
+    border: none;
+    border-bottom-style: solid;
+    border-bottom-width: 2px;
+    border-bottom-color: #EA8383;
+    background-color:#FFF;
+    color:#4E4E4E;
+}
+
+div#fancy_login_login_box a.fancy-login-password-link-processed {
+    display: none;
+}
+
+/*.item-list {
+    width: 50%;
+    text-align: center;
+    background-color: #EA8383;
+    margin-left: auto;
+    margin-right: auto;
+    padding-bottom: 5px;
+    padding-top: 5px;
+}*/
+
+div#fancy_login_login_box form#user-login-form .item-list ul {
+    padding-left: 0;
+    margin: 0;
+}
+
+div#fancy_login_login_box form#user-login-form .form-actions
+{
+    text-align: center;
+    background-color: #EA8383;
+    margin-left: auto;
+    margin-right: auto;
+    padding-bottom: 5px;
+    padding-top: 5px;
+}
+
+div#fancy_login_login_box form#user-login-form input
+{
+    border: none;
+    background: none;
+    color: #EA8383;
+    text-decoration: none;
+    padding-top: 0px;
+    padding-bottom: 0px;
+    font-size: 100%;
+    font: inherit;
+    border-bottom: solid 1px #EA8383;
+    width: 100%;
+}
+
+div#fancy_login_login_box form#user-login-form .form-submit
+{
+    border: none;
+    background: none;
+    color: #FFF;
+    text-decoration: none;
+    padding-top: 0px;
+    padding-bottom: 0px;
+    font-size: 100%;
+    font: inherit;
+    width: 100%;
+}
+
+div#fancy_login_login_box .form-item.form-type-textfield.form-item-name, 
+div#fancy_login_login_box .form-item.form-type-password.form-item-pass {
+    height: 80px;
+    margin-bottom: 0px;
+}
+
+div#fancy_login_login_box form#user-login-form button:hover, 
+div#fancy_login_login_box form#user-login-form input:hover
+{
+    box-shadow: none;
+}
+
+div#fancy_login_login_box form#user-login-form .item-list a {
+    color: #EA8383; 
+    text-decoration: underline;
+}
+

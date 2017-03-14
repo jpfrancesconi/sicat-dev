@@ -1,0 +1,23 @@
+<?php 
+//Modulo REPORTES: Este modulo concentra todas las funcionalidades que son de reportes forena
+
+function reportes_forena_data_alter(&$data, $context) {
+	//dpm($context);
+
+  if ($context['provider'] == 'sampledb' && $data ) {
+    foreach($data as $row) {
+    
+      $row->mydata = 'foo';
+    }
+  }
+}
+
+function mreportes_forena_parameters_alter($report_name, &$parms) { 
+  // Set a data context for use in reports 
+  
+
+  $sec['admin'] = user_access('access administration pages') ? 'Y' : ''; 
+  Frx::Data()->setContext('security', $sec); 
+}
+
+?>

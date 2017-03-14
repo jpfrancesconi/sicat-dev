@@ -1,0 +1,13 @@
+@CHARSET "UTF-8";
+
+.catTable th{
+	background-color: #FF0000;
+}
+
+.catTable tr.odd{
+	background-color: #FFFFFF;
+}
+
+.catTable tr.even{
+	background-color: rgba(255, 1, 1, 0.33);
+}

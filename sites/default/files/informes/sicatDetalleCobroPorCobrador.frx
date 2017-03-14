@@ -1,0 +1,99 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE root [
+<!ENTITY nbsp "&#160;">
+]>
+<html xmlns:frx="urn:FrxReports">
+<head>
+<title>Detalle de Cobro por Cobrador</title>
+<frx:category/>
+<frx:parameters>
+  <frx:parm id="cobrador_id" label="Cobrador:" require="1" data_source="dbsicat/sicatParamCobradoresActivos" data_field="ID_PERSONAL" label_field="APE_NOM_COBRADOR" type="select"/>
+  <frx:parm id="anio" label="Año:" require="1" type="textfield">2017</frx:parm>
+  <frx:parm id="mes" label="Mes:" type="textfield"/>
+</frx:parameters>
+<frx:docgen>
+  <frx:doc type="xls"/>
+  <frx:doc type="pdf"/>
+</frx:docgen>
+<frx:fields>
+</frx:fields>
+<frx:menu/>
+<frx:cache/>
+<style/>
+<frx:options input_format="full_html" skin="talleres"/></head>
+<body>
+  <div id="sicatDetalleCobroPorCobrador_block" class="FrxTable catTable" frx:block="dbsicat/sicatDetalleCobroPorCobrador">
+    <h2>Cobrador: {parm.cobrador_id} - Año/Mes: {parm.anio}/{parm.mes}</h2>
+  <table id="tablaSocioUnico">
+      <thead>
+        <tr>
+          <th colspan="5">Listado de Socio Unicos</th>
+        </tr>
+        <tr>
+          <th>CATEGORIA</th>
+          <th>$ IMPORTE</th>
+          <th>CANTIDAD</th>
+          <th>MES</th>
+          <th>FECHA</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr id="io" frx:foreach="*">
+          <td>{CATEGORIA}</td>
+          <td>$ {IMPORTE}</td>
+          <td>{CANTIDAD}</td>
+          <td>{MES}</td>
+          <td>{FECHA_EMISION}</td>
+        </tr>
+        <tr>
+          <td style="font-weight: bold;">TOTALES</td>
+          <td style="font-weight: bold;">$ {=sum(//IMPORTE)}</td>
+          <td style="font-weight: bold;">{=sum(//CANTIDAD)}</td>
+          <td></td>
+          <td></td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+  <div id="sicatDetalleCobroFamPorCobrador_block" class="FrxTable catTable" frx:block="dbsicat/sicatDetalleCobroFamPorCobrador">
+  <table id="tablaSocioGrupo">
+      <thead>
+        <tr>
+          <th colspan="5">Listado de Socios Grupos de Familia</th>
+        </tr>
+        <tr>
+          <th>CATEGORIA</th>
+          <th>$ IMPORTE</th>
+          <th>CANTIDAD</th>
+          <th>MES</th>
+          <th>FECHA</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr id="io2" frx:foreach="*">
+          <td>{GRUPO}</td>
+          <td>$ {IMPORTE}</td>
+          <td>{CANTIDAD}</td>
+          <td>{MES}</td>
+          <td>{FECHA_EMISION}</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td style="font-weight: bold;">$ {=sum(//IMPORTE)}</td>
+          <td style="font-weight: bold;">{=sum(//CANTIDAD)}</td>
+          <td></td>
+          <td></td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+  <div frx:if="!{io.CATEGORIA}" style="border: 1px solid red; padding-left: 2%; padding-top: 1%;">
+    <h1>No se han encontrado resultados para la consulta ingresada</h1>
+  </div>
+  <div id="sicat_usuario_consulta_block" class="FrxTable" frx:block="dbsicat/sicatUsuarioConsulta">
+    <div id="sicat_usuario_consulta" frx:foreach="*">
+      <p>Reporte realizado por <strong>{USUARIO}</strong> en la fecha: <strong>{FECHA_CONSULTA}</strong></p>
+    </div>
+  </div>
+</body>
+</html>

@@ -1,0 +1,84 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE root [
+<!ENTITY nbsp "&#160;">
+]>
+<html xmlns:frx="urn:FrxReports">
+<head>
+<title>Socios por Categoría y Grupos</title>
+<frx:category/>
+<frx:options/>
+<frx:parameters>
+</frx:parameters>
+<frx:docgen>
+  <frx:doc type="xls" style="background-color: red;"/>
+  <frx:doc type="pdf"/>
+</frx:docgen>
+<frx:fields>
+</frx:fields>
+<frx:menu/>
+<frx:cache/>
+<style/>
+<frx:options input_format="full_html" skin="talleres"/>
+</head>
+<body>
+  <div id="sicatTotalSociosPorCat_block" class="FrxTable catTable" frx:block="dbsicat/sicatTotalSociosPorCat">    
+    <table>
+      <thead>
+        <tr>
+          <th colspan="3">Listado de Socio Unicos</th>
+        </tr>
+        <tr>
+          <th>CODIGO</th>
+          <th>CATEGORIA</th>
+          <th>CANTIDAD</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr id="sicatTotalSociosPorCat" frx:foreach="*">
+          <td>{CODIGO}</td>
+          <td>{CATEGORIA}</td>
+          <td>{CANTIDAD}</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td style="font-weight: bold;">TOTAL SOCIOS</td>
+          <td style="font-weight: bold;">{=sum(//CANTIDAD)}</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+            
+  <div id="sicatTotalSociosPorGrupo_block" class="FrxTable catTable" frx:block="dbsicat/sicatTotalSociosPorGrupo">
+    <table>
+      <thead>
+        <tr>
+          <th colspan="3">Listado de Socios Grupos de Familia</th>
+        </tr>
+        <tr>
+          <th>CODIGO</th>
+          <th>GRUPO</th>
+          <th>CANTIDAD</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr id="sicatTotalSociosPorGrupo" frx:foreach="*">
+          <td>{CODIGO}</td>
+          <td>{GRUPO}</td>
+          <td>{CANTIDAD}</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td style="font-weight: bold;">TOTAL SOCIOS</td>
+          <td style="font-weight: bold;">{=sum(//CANTIDAD)}</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+   <div id="sicat_usuario_consulta_block" class="FrxTable" frx:block="dbsicat/sicatUsuarioConsulta">
+    <div id="sicat_usuario_consulta" frx:foreach="*">
+      <p>Reporte realizado por <strong>{USUARIO}</strong> en la fecha: <strong>{FECHA_CONSULTA}</strong></p>
+    </div>
+  </div>
+</body>
+</html>

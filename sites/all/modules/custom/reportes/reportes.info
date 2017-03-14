@@ -1,0 +1,5 @@
+name = REPORTES
+description = Modulo con funcionalidades de Reportes Forena
+package = ideasOrange
+core = 7.x
+version = 7.x

@@ -1,0 +1,5 @@
+name = SOCIOS
+description = Modulo de gestion y administraión de socios
+package = ideasOrange
+core = 7.x
+version = 7.x

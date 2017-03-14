@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<options>
+	<option> 
+		<value>ACTIVO</value>
+		<label>ACTIVO</label>
+	</option>
+	<option> 
+		<value>NO ACTIVO</value>
+		<label>NO ACTIVO</label>
+	</option>
+	<option> 
+		<value>TODOS</value>
+		<label>TODOS</label>
+	</option>
+</options>

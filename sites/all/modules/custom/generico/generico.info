@@ -1,0 +1,5 @@
+name = GENERICO
+description = Modulo con funcionalidades de uso general
+package = ideasOrange
+core = 7.x
+version = 7.x

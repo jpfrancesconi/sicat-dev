@@ -1,0 +1,10 @@
+a {
+    color: #c02737;
+    text-decoration: none;
+}
+
+#header_wrapper {
+    position: relative;
+    z-index: 9;
+    background: #ddd;
+}

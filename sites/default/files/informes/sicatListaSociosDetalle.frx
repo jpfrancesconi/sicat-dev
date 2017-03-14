@@ -1,0 +1,64 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE root [
+<!ENTITY nbsp "&#160;">
+]>
+<html xmlns:frx="urn:FrxReports">
+<head>
+<title>Listado de Socios - Detalles </title>
+<frx:category/>
+<frx:parameters>
+</frx:parameters>
+<frx:docgen>
+</frx:docgen>
+<frx:fields>
+</frx:fields>
+<frx:menu/>
+<frx:cache/>
+<style></style>
+<frx:options input_format="full_html" skin="talleres"/></head>
+<body>
+  <h1>DETALLES DEL SOCIO Nº: {NRO_SOCIO}</h1>
+  <div id="detalleSocio_1_block" class="FrxTable catTable" frx:block="dbsicat/sicatListaSociosDetalle_1">
+  <h3>Listado de Adherentes del Socio</h3>
+  <table id="detalleSocio_1_table">
+      <thead>
+        <tr>
+          <th>Nº SECUENCIA</th>
+          <th>APELLIDO</th>
+          <th>PARENTESCO</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr id="detalleSocio_1" frx:foreach="*">
+          <td>{SECUENCIA}</td>
+          <td>{APELLIDO}</td>
+          <td>{PARENTESCO}</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div id="detalleSocio_2_block" class="FrxTable catTable" frx:block="dbsicat/sicatListaSociosDetalle_2">
+  <h3>Listado de Cuotas Impagas</h3>
+  <table id="detalleSocio_2_table">
+      <thead>
+        <tr>
+          <th>AÑO</th>
+          <th>MES</th>
+          <th>CONCEPTO</th>
+          <th>IMPORTE</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr id="detalleSocio_2" frx:foreach="*">
+          <td>{ANIO}</td>
+          <td>{MES}</td>
+          <td>{CONCEPTO}</td>
+          <td>{IMPORTE}</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+</body>
+</html>

@@ -1,0 +1,166 @@
+/*FILTROS Y TABLA*/
+input#edit-ver-socio {
+    position: absolute;
+    bottom: 0;
+}
+
+.page-socios-gestionar-socios .vertical-tabs-panes.vertical-tabs-processed fieldset
+{
+	top: 0;
+}
+
+
+
+input#edit-alta {
+    width: 100%;
+    float: left;
+}
+
+/*fieldset#edit-filtrar {
+    width: 30%;
+    float: left;
+    margin-top: 0px;
+    margin-bottom: 0px;
+}
+
+fieldset#edit-filtrar input {
+    width: 95%;
+}*/
+div#listado-socios {
+    margin-bottom: 50px;
+}
+fieldset#edit-fs-apellido-nombre {
+    margin-top: 0px;
+}
+
+fieldset#edit-gestion-socios--2 {
+    min-height: 205px;
+}
+/*PESTAÑA DATOS PERSONALES*/
+fieldset#edit-datos-personales,
+fieldset#edit-grupo-familiar,
+fieldset#edit-actividades,
+fieldset#edit-servicios,
+fieldset#edit-cuenta-corriente {
+    top: 0;
+}
+
+fieldset#edit-datos-personales .fieldset-wrapper,
+fieldset#edit-grupo-familiar .fieldset-wrapper,
+fieldset#edit-actividades .fieldset-wrapper,
+fieldset#edit-servicios .fieldset-wrapper,
+fieldset#edit-cuenta-corriente .fieldset-wrapper {
+    /*margin-top: 0;*/
+}
+
+div#apellido-nombre-socio {
+    border-bottom: solid 2px #d00000;
+    margin-bottom: 20px;
+}
+
+div#apellido-nombre-socio h2 {
+    margin-top: 0;
+    text-align: center;
+    color: #d00000;
+    font-size: 2em;
+}
+
+div#foto-socio img {
+    width: 95%;
+    border: solid #d00000;
+    border-radius: 100%;
+}
+
+div#foto-socio {
+    float: left;
+    max-width: 300px;
+}
+
+div#datos-personales-socio {
+    height: 300px;
+}
+
+.texto-dp {
+    padding: 5px;
+}
+
+div#botones-dp {
+	margin: 0 auto;
+	width: 100%;
+	margin-top: 20px;
+	margin-bottom: 60px;
+}
+
+.io-boton a {
+	user-select:none;
+    padding: 12px;
+    border: solid #d00000 1px;
+    text-decoration: none;
+    color: #d00000;
+    transition: all 0.5s;
+    box-shadow: 0 4px 8px 0 rgba(0,0,0,0.2), 0 6px 20px 0 rgba(0,0,0,0.19);
+}
+
+.io-boton a:hover {
+	background: #d00000;
+    text-decoration: none;
+    color: #FFF;
+    box-shadow: 0 8px 4px 0 rgba(0,0,0,0.2), 0px 0px 6px 6px rgba(0,0,0,0.19);
+}
+
+.io-boton a:active {
+	background: #d00000;
+    text-decoration: none;
+    color: #FFF;
+    box-shadow: 0 8px 4px 0 rgba(0,0,0,0.2), 0px 0px 6px 6px rgba(0,0,0,0.19);
+}
+
+.io-boton a:link {
+    text-decoration: none;
+}
+
+.io-boton a:visited {
+    text-decoration: none;
+}
+
+.io-boton.boton-dp {
+    float: right;
+    margin-right: 20px;
+    margin-bottom: 20px;
+}
+
+/*CUENTA CORRIENTE*/
+fieldset#edit-cuenta-corriente {
+    height: 300px;
+    overflow: scroll;
+}
+
+/*DATOS SOCIO - GRUPO FAMILIAR*/
+div#grupo-familiar-invalido,
+div#categoria-socio-invalida {
+    animation: flash 1s;
+    animation-iteration-count: 3;
+    padding: 10px;
+    text-align: center;
+    color: red;
+    background-color: #fbbaba;
+    margin-bottom: 10px;
+}
+
+.socio-sin-deuda {
+    border: solid 2px green;
+    background-color: #c3f5c3;
+    padding: 10px;
+}
+
+
+/*FORMULARIO DE ALTA Y MODIFICACION*/
+.form-item input
+{
+    text-transform: uppercase;
+}
+
+/*saca el salir de los overlay*/
+div#overlay-close-wrapper {
+    display: none;
+}

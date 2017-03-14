@@ -1,0 +1,78 @@
+.mainImage {
+	width: 100%;
+	height: 400px;  
+}
+
+#mainBanner {
+	box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2), 0 6px 20px 0 rgba(0, 0, 0, 0.19);	  
+}
+
+#mainBanner p{
+	text-align: center;
+	padding-top: 15px;
+	padding-bottom: 15px;
+}
+
+#node-1 h2{
+	display: none;
+}
+
+#node-1 .link-wrapper{
+	display: none;
+} 
+
+.bloque-contador-socios{
+	border-left: solid 4px #B31717;
+	margin-top: 10px;
+} 
+
+.bloque-contador-socios h1{
+	margin-left: 5px;
+} 
+
+.bloque-contador-socios .nro{
+	color: #B31717;
+}
+
+#block-system-user-menu {
+	border-left: solid 4px #B31717;
+	margin-top: 10px;
+}
+
+/* Formulario de login */
+#user-login-form input[type="text"]{
+	padding: 10px;
+	border: solid 1px #dcdcdc;
+	transition: box-shadow 0.3s, border 0.3s;
+}
+
+#user-login-form input[type="text"]:focus,
+#user-login-form input[type="text"].focus {
+	border: solid 1px #707070;
+	box-shadow: 0 0 5px 1px #969696;
+}
+
+#user-login-form input[type="password"]{
+	padding: 10px;
+	border: solid 1px #dcdcdc;
+	transition: box-shadow 0.3s, border 0.3s;
+}
+
+#user-login-form input[type="password"]:focus,
+#user-login-form input[type="password"].focus {
+	border: solid 1px #707070;
+	box-shadow: 0 0 5px 1px #969696;
+}
+
+#user-login-form input[type="submit"]{
+	padding: 10px;
+	border: solid 1px #dcdcdc;
+	transition: box-shadow 0.3s, border 0.3s;
+	border-color: #ccc;
+}
+
+#user-login-form input[type="submit"]:hover,
+#user-login-form input[type="submit"].hover {
+	border: solid 1px #707070;
+	box-shadow: 0 0 5px 1px #969696;
+}
