@@ -12,7 +12,8 @@ include 'includes/gestionar_estados_socio.inc';
 include 'includes/estado.inc';
 include 'includes/gestionar_tipo_grupo_familiar.inc';
 include 'includes/tipo_grupo_familiar.inc';
-include 'includes/registrar_pagos.inc';
+include 'includes/registrar_pago.inc';
+include 'includes/registrar_pagos_cod_barra.inc';
 include 'includes/generar_cupones.inc';
 include 'includes/adjuntar_foto.inc';
 include 'includes/ingreso_socio.inc';
@@ -66,9 +67,9 @@ function socios_permission(){
     'title' => t('Gestion de socios - Tipo de grupo familiar'),
     'description' => t('Permisos para acceder a Alta, modificación y visualización de un tipo de grupo familiar.'),
   ),
-  'acceso a registrar pagos' =>  array(
-    'title' => t('Gestion de socios - Registrar pagos'),
-    'description' => t('Permisos para acceder a registrar pagos de cuotas.'),
+  'acceso a registrar pagos por cod barras' =>  array(
+    'title' => t('Gestion de socios - Registrar pagos por Codigo de Barras'),
+    'description' => t('Permisos para acceder a registrar pagos de cuotas desde código de barras.'),
   ),
   'acceso a generar cupones' =>  array(
     'title' => t('Gestion de socios - Generar cupones'),
@@ -183,13 +184,20 @@ function socios_menu()
     'access arguments' => array('acceso a gestionar tipo de grupo familiar'),    
     'expanded' => TRUE,
   );//tipo_grupo_familiar.inc  
-  $items['socios/registrar_pagos'] = array(
+  $items['socios/registrar_pagos_cod_barra'] = array(
+    'title' => 'REGISTRAR PAGOS',
+    'page callback' => 'drupal_get_form',
+    'page arguments' => array('registrar_pagos_cod_barra_form'), 
+    'access arguments' => array('acceso a registrar pagos por cod barras'),    
+    'expanded' => TRUE,
+  );//registrar_pagos_cod_barra.inc    
+  $items['socios/registrar_pago'] = array(
     'title' => 'REGISTRAR PAGOS',
     'page callback' => 'drupal_get_form',
     'page arguments' => array('registrar_pagos_form'), 
     'access arguments' => array('acceso a registrar pagos'),    
     'expanded' => TRUE,
-  );//registrar_pagos.inc    
+  );//registrar_pago.inc    
   $items['socios/generar_cupones'] = array(
     'title' => 'REGISTRAR PAGOS',
     'page callback' => 'drupal_get_form',

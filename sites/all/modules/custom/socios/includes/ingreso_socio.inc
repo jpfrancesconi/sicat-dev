@@ -17,6 +17,9 @@ function ingreso_socio_form($form, &$form_state)
 	$form['#attached']['css'] = array(
 		drupal_get_path('module', 'socios') . '/css/socios.css',
 	);
+	$form['#attached']['js'] = array(
+		drupal_get_path('module', 'socios') . '/js/ingreso_socio.js',
+	);
 
 	$form['buscar_socio'] = array( 
 		'#type'=>'fieldset',

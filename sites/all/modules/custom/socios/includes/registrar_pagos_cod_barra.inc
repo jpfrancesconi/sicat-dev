@@ -12,7 +12,7 @@
 /**
 * Formulario que registra pagos de cuotas
 */
-function registrar_pagos_form($form, &$form_state)
+function registrar_pagos_cod_barra_form($form, &$form_state)
 {
 	$form['#attached']['css'] = array(
 		drupal_get_path('module', 'socios') . '/css/socios.css',
@@ -95,14 +95,14 @@ function registrar_pagos_form($form, &$form_state)
 
 
 
-function registrar_pagos_form_valdiate($form, &$form_state)
+function registrar_pagos_cod_barra_form_valdiate($form, &$form_state)
 {
 	/*if(!is_numeric($form_state['values']['importe_cuota'])){
       form_set_error('importe_cuota', 'El campo IMPORTE CUOTA es incorrecto - Solo puede contener números');
     }*/
 }
 
-function registrar_pagos_form_submit($form, &$form_state)
+function registrar_pagos_cod_barra_form_submit($form, &$form_state)
 {
 	$uid = $GLOBALS['user']->uid;	
 	$id_cta_cte_item = $form_state['values']['id_cta_cte_item'];	
@@ -124,7 +124,7 @@ function registrar_pagos_form_submit($form, &$form_state)
 				$mensaje = 'SE REGISTRO CORRECTAMENTE EL PAGO';		
 
 			drupal_set_message($mensaje);
-			$form_state['redirect'] = array('socios/registrar_pagos');	
+			$form_state['redirect'] = array('socios/registrar_pagos_cod_barra');	
 		}
 		catch (Exception $e) {
 	  		$transaction->rollback();
@@ -134,7 +134,7 @@ function registrar_pagos_form_submit($form, &$form_state)
 	}
 	else
 	{
-		$form_state['redirect'] = array('socios/registrar_pagos');
+		$form_state['redirect'] = array('socios/registrar_pagos_cod_barra');
 	}
 	
 }
