@@ -15,7 +15,11 @@
 function registrar_pagos_form($form, &$form_state)
 {
 	$form['#attached']['css'] = array(
-		drupal_get_path('module', 'socios') . '/css/socios.css',
+		drupal_get_path('module', 'socios') . '/css/registrar_pagos.css',
+	);
+
+	$form['#attached']['js'] = array(
+		drupal_get_path('module', 'socios') . '/js/anular_pagos.js',
 	);
 
 	$disabled = false;
@@ -90,11 +94,25 @@ function registrar_pagos_form($form, &$form_state)
 			//TODO: SI CAMBIA NRO_SOCIO_TITULAR POR ID_SOCIO_TITULAR CAMBIAR ACA
 			$socio_titular_familia = get_socio_por_nro_socio($grupo_familiar->nro_socio_titular);
 
-			$cta_cte = get_pago_por_id_socio($socio_titular_familia->id_socio, null, null, 0);		
+			//se buscan los pagos del socio con los parametros:
+			//id_socio = id del socio
+			//mes = null
+			//anio = null
+			//pagado = 0
+			//refinanciado = 0
+			//anulado = 0
+			$cta_cte = get_pago_por_id_socio($socio_titular_familia->id_socio, null, null, 0, 0, 0);		
 		}
 		else
 		{
-			$cta_cte = get_pago_por_id_socio($socio->id_socio, null, null, 0);		
+			//se buscan los pagos del socio con los parametros:
+			//id_socio = id del socio
+			//mes = null
+			//anio = null
+			//pagado = 0
+			//refinanciado = 0
+			//anulado = 0
+			$cta_cte = get_pago_por_id_socio($socio->id_socio, null, null, 0, 0, 0);
 		}
 		
 		//drupal_set_message('<pre>'.print_r($cta_cte, true).'</pre>');
@@ -167,9 +185,49 @@ function registrar_pagos_form($form, &$form_state)
 		$form['datos_pago']['aceptar'] = array(
 			'#type'=>'submit',
 			'#value'=>'PROCESAR PAGOS',
-			'#validate'=>array('registrar_pagos_form_valdiate'),
+			'#validate'=>array('registrar_pagos_form_validate'),
 			'#submit'=>array('registrar_pagos_form_submit')
 		);
+
+		$form['datos_pago']['anular'] = array(
+			'#type'=>'submit',
+			'#value'=>'ANULAR PAGOS',
+			'#executes_submit_callback'=>false,
+		);
+
+
+		$form['datos_pago']['anulacion'] = array(   
+			'#prefix' => '<div id=panel-anular-pago-div>',
+			'#type'=>'fieldset',
+			'#title'=>'ANULACION DE PAGO GENERADO',
+			'#suffix' => '</div>',
+		);
+
+		$form['datos_pago']['anulacion']['motivo_anulacion'] = array(
+			'#type'=>'select',
+			'#title'=>'MOTIVO DE ANULACION',
+			'#options'=>array( NULL=>'-Seleccionar-',
+							  'DISPOSICIÓN DE COMISIÓN DIRECTIVA'=>'DISPOSICIÓN DE COMISIÓN DIRECTIVA',
+							  'POR CAMBIO DE CATEGORÍA'=>'POR CAMBIO DE CATEGORÍA',
+							  'ERROR ADMINISTRATIVO'=>'ERROR ADMINISTRATIVO'),
+		);
+
+		$form['datos_pago']['anulacion']['aceptar_anulacion'] = array(
+			'#type'=>'submit',
+			'#value'=>'ACEPTAR',
+			'#validate'=>array('aceptar_anulacion_form_validate'),
+			'#submit'=>array('aceptar_anulacion_form_submit')
+		);
+
+		$form['datos_pago']['anulacion']['cancelar_anulacion'] = array(
+			'#type'=>'submit',
+			'#value'=>'CANCELAR',
+			'#executes_submit_callback'=>false,
+		);
+		
+		
+						
+		
     }
 	
 	return $form;
@@ -196,7 +254,7 @@ function buscar_pago_submit($form, &$form_state)
 	}
 }
 
-function registrar_pagos_form_valdiate($form, &$form_state)
+function registrar_pagos_form_validate($form, &$form_state)
 {
 	//revisamos que se haya seleccionado al menos un pago para procesar
 	//se suman los valores si la suma da 0 es que no se selecciono ningun pago
@@ -246,6 +304,72 @@ function registrar_pagos_form_submit($form, &$form_state)
   		drupal_set_message('<pre>'. print_r("Error en la trasaccion - Comunicarse con el proveedor de sistemas.".$e, TRUE) .'</pre>');
 	}
 	
+}
+
+function aceptar_anulacion_form_validate($form, &$form_state)
+{
+	//revisamos que se haya seleccionado al menos un pago para procesar
+	//se suman los valores si la suma da 0 es que no se selecciono ningun pago
+	$suma_seleccion = 0;
+	foreach ($form_state['values']['listado_pago'] as $pago) {
+		$suma_seleccion = $suma_seleccion+$pago;
+	}
+	//drupal_set_message('<pre>'.print_r($form_state['values'],true).'</pre>');
+	if($suma_seleccion == 0)
+    	form_set_error('listado_pago', 'No se ha seleccionado ningún item - Seleccione al menos uno para realizar la acción requerida.');
+    //drupal_set_message('<pre>'.print_r(empty($form_state['values']['motivo_anulacion']),true).'</pre>');
+    if(empty($form_state['values']['motivo_anulacion']))
+    {
+    	form_set_error('motivo_anulacion', 'No se ha selecionado ningún motivo de aulación - Seleccione al menos uno para completar la anulación');
+    }
+    
+}
+
+function aceptar_anulacion_form_submit($form, &$form_state)
+{
+	$uid = $GLOBALS['user']->uid;		
+	$fecha_anulado = date('Y').'-'.date('m').'-'.date('d');
+	$motivo_anulacion = $form_state['values']['motivo_anulacion'];
+	//drupal_set_message('<pre>'.print_r($form_state['values'], true).'</pre>');
+	$transaction = db_transaction();
+	try
+	{
+		//recorremos el listado mientras no sea 0
+		$listado_pago = $form_state['values']['listado_pago'];
+		foreach ($listado_pago as $item) {
+			if($item == 0)
+				break;
+
+			db_update('io_cta_cte_item')
+			->fields(array( 'anulado'=>1,
+				'fecha_anulado'=>$fecha_anulado,
+				'motivo_anulacion'=>$motivo_anulacion,				
+				'usuario_mod'=>$uid,
+			))
+			->condition('id_cta_cte_item',$item,'=')
+			->execute();
+			$mensaje = 'SE REGISTRO CORRECTAMENTE LA ANULACION DEL PAGO';		
+
+			drupal_set_message($mensaje);
+			$form_state['redirect'] = array('socios/registrar_pago');	
+
+		}
+
+		unset($transaction);
+	}
+	catch (Exception $e) {
+  		$transaction->rollback();
+  		watchdog_exception('pago', $e);
+  		drupal_set_message('<pre>'. print_r("Error en la trasaccion - Comunicarse con el proveedor de sistemas.".$e, TRUE) .'</pre>');
+	}
+	
+}
+
+function ajax_anular_callback($form, &$form_state)
+{
+	//drupal_set_message('<pre>'.print_r($form_state['values'], true).'</pre>');
+	$_SESSION['anulando'] = 1;
+	return $form['datos_pago'];
 }
 
 ?>

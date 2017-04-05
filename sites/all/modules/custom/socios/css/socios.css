@@ -164,3 +164,28 @@ div#categoria-socio-invalida {
 div#overlay-close-wrapper {
     display: none;
 }
+
+.form-item.form-type-textfield.form-item-filtro-nombres {
+    float: left;
+    width: 40%;
+    margin-right: 40px;
+}
+
+.form-item.form-type-textfield.form-item-filtro-apellidos {
+    margin-top: 20px;
+}
+
+.form-item.form-type-select.form-item-filtro-estado {
+    float: left;
+    width: 25%;
+}
+
+.form-item.form-type-select.form-item-filtro-categoria-socio {
+    float: left;
+    width: 25%;
+}
+
+.form-item.form-type-select.form-item-filtro-tipo-socio {
+    margin-top: 20px;
+}
+

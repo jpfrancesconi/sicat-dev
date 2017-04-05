@@ -267,7 +267,7 @@ function ver_socio_form_submit($form, &$form_state)
     	$_SESSION[$formulario]['params']['nombres'] = (!empty($form_state['values']['filtro_nombres']) ? strtoupper($form_state['values']['filtro_nombres']) : NULL);
     	$_SESSION[$formulario]['params']['nro_socio'] = (!empty($form_state['values']['filtro_nro_socio']) ? $form_state['values']['filtro_nro_socio'] : NULL);
     	$_SESSION[$formulario]['params']['estado'] = (($form_state['values']['filtro_estado'] != 0) ? $form_state['values']['filtro_estado'] : NULL);*/
-    	unset($_SESSION[$formulario]['params']);
+    	//unset($_SESSION[$formulario]['params']);
     	$form_state['redirect'] = array('socios/datos_socio',array('query' => array('id'=>$id_socio_seleccionado)));
 
    		

@@ -351,7 +351,7 @@ function get_formas_pago_select()
 //obtiene todas las relaciones de parentezco
 function get_parentezco_select()
 {
-	$parentezco = array('NINGUNO'=>'NINGUNO','HIJA/O'=>'HIJA/O', 'HERMANA/O'=>'HERMANA/O', 'ESPOSA'=>'ESPOSA/O');
+	$parentezco = array('NINGUNO'=>'NINGUNO','HIJA/O'=>'HIJA/O', 'HERMANA/O'=>'HERMANA/O', 'ESPOSA'=>'ESPOSA/O', 'MADRE'=>'MADRE', 'PADRE'=>'PADRE', 'PRIMA/O'=>'PRIMA/O', 'ABUELA/O'=>'ABUELA/O', 'SOBRINA/O'=>'SOBRINA/O', 'CONYUGE/O'=>'CONYUGE/O', 'SUEGRA/O'=>'SUEGRA/O', 'CUÑADA/O'=>'CUÑADA/O', 'OTRO'=>'OTRO');
 
 	return $parentezco;
 }
@@ -685,8 +685,10 @@ function get_pago_por_socio($num_socio, $mes)
 }
 
 //obtiene un pago en particular por un socio particular para un mes particular
-function get_pago_por_id_socio($id_socio, $mes=null, $anio=null, $pagado=null)
+function get_pago_por_id_socio($id_socio, $mes=null, $anio=null, $pagado=null, $refinanciado=NULL, $anulado=NULL)
 {
+	$filtro_pagado = '';
+
 	if(!is_null($mes))
 		$filtro_mes = ' AND cci.mes = '.$mes;
 	else
@@ -696,10 +698,12 @@ function get_pago_por_id_socio($id_socio, $mes=null, $anio=null, $pagado=null)
 	else
 		$filtro_anio = '';
 	if(!is_null($pagado))
-		$filtro_pagado = ' AND cci.pagado = '.$pagado;
-	else
-		$filtro_pagado='';
-
+		$filtro_pagado = $filtro_pagado.' AND cci.pagado = '.$pagado;
+	if(!is_null($anulado))
+		$filtro_pagado = $filtro_pagado.' AND cci.anulado = '.$anulado;
+	if(!is_null($refinanciado))
+		$filtro_pagado =$filtro_pagado.' AND cci.refinanciado = '.$refinanciado;
+	
 	$pago = db_query('SELECT soc.nro_socio, cci.id_cta_cte_item, date_format(cci.fecha_emision, \'%d/%m/%Y\') as fecha_emision, cci.mes, cci.anio, con.nombre as concepto, cci.valor, IF(cci.pagado = 1, \'SI\', \'NO\') AS pagado, date_format(cci.fecha_pago, \'%d/%m/%Y\') as fecha_pago, IF(cci.anulado = 1, \'SI\', \'NO\') AS anulado
 					FROM io_cta_cte_item cci
 					INNER JOIN io_cta_cte cc on cci.cta_cte_id = cc.id_cta_cte
@@ -741,6 +745,31 @@ function get_uri_foto_persona($id_persona)
 		return null;
 }
 
+//Replica los datos de pago en todos los socios de un grupo familiar
+function replicar_pago_grupo_familiar($id_socio, $forma_pago, $cbu, $vencimiento_1, $vencimiento_2, $personal, $lugar_cobro)
+{
+	$uid = $GLOBALS['user']->uid;
+	//buscamos el grupo familiar del socio por el id_socio recibido como parametro
+	$socios_grupo_familiar = get_socios_grupo_familiar($id_socio);
 
+	//recorremos cada socio obtenido y le pegamos los datos de pago del titular
+	foreach($socios_grupo_familiar as $socio)
+	{
+		$id_socio_fam = $socio->id_socio;
+		//actualizamos los datos de cada socio
+		db_update('io_socio')
+			->fields(array(
+				'forma_pago_id'=>(isset($socio_titular_pago) ? $socio_titular_pago->forma_pago_id : $forma_pago),
+				'cbu'=>(isset($socio_titular_pago) ? $socio_titular_pago->cbu : $cbu),
+				'vencimiento_dia'=>(isset($socio_titular_pago) ? $socio_titular_pago->vencimiento_dia : $vencimiento_1),
+				'vencimiento_mes'=>(isset($socio_titular_pago) ? $socio_titular_pago->vencimiento_mes : $vencimiento_2),
+				'lugar_cobro'=>$lugar_cobro,
+				'personal_id'=>$personal,
+				'usuario_mod'=>$uid,
+			))
+			->condition('id_socio',$id_socio_fam,'=')
+			->execute();
+	}	
+}
 
 ?>
