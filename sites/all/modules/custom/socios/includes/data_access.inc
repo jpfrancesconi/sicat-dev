@@ -141,7 +141,8 @@ function get_socio_por_nro_socio($nro_socio)
 	LEFT JOIN io_categoria_socio cat on soc.categoria_socio_id = cat.id_categoria_socio 
 	LEFT JOIN io_localidad loc on loc.ID_LOCALIDAD = per.localidad_id 
 	LEFT JOIN io_provincia prov on prov.ID_PROVINCIA = loc.PROVINCIA_ID
-	WHERE soc.nro_socio = :nro_socio', array(':nro_socio' => $nro_socio ))->fetchObject();
+	WHERE soc.nro_socio = :nro_socio
+	ORDER BY soc.secuencia ASC', array(':nro_socio' => $nro_socio ))->fetchObject();
 	
 	//drupal_set_message('<pre>'.print_r($socio, true).'</pre>');
 	return $socio;	
@@ -772,4 +773,58 @@ function replicar_pago_grupo_familiar($id_socio, $forma_pago, $cbu, $vencimiento
 	}	
 }
 
+//funcion que retorna el tipo de estado pasado como parametro
+//si el tipo_baja es 1 es un estado de tipo BAJA
+function get_tipo_estado($id_estado)
+{
+	$estado = db_query('SELECT *
+						FROM io_estado_socio est
+						WHERE est.id_estado_socio = :id_estado'
+						,array(':id_estado' => $id_estado))->fetchObject();
+		
+	if(isset($estado->tipo_baja))
+		return $estado->tipo_baja;
+	else
+		return null;	
+}
+
+function replicar_baja_a_grupo_familiar($id_socio, $id_estado_socio)
+{
+	$uid = $GLOBALS['user']->uid;
+	//buscar los socios del grupo familiar
+	$socios = get_socios_grupo_familiar($id_socio);
+	//recorremos los socios del grupo familiar 
+	foreach ($socios as $socio) {
+		db_update('io_socio')
+		->fields(array(
+		'estado_socio_id'=>$id_estado_socio,				
+		'usuario_mod'=>$uid,
+		))
+		->condition('id_socio',$id_socio,'=')
+		->execute();
+	}
+}
+
+function consultar_deuda($id_socio)
+{
+	$deuda = db_query('select cci.*, con.nombre 
+						from io_socio soc
+						inner join io_cta_cte cc on cc.socio_id = soc.id_socio
+						inner join io_cta_cte_item cci on cci.cta_cte_id = cc.id_cta_cte
+						inner join io_concepto con on cci.concepto_id = con.id_concepto
+						where cci.pagado = 0
+						and cci.anulado = 0
+						and cci.refinanciado = 0
+						and soc.id_socio =:id_socio',array(':id_socio' => $id_socio))->fetchAll();
+	
+
+	if(isset($deuda) && !empty($deuda)){
+		//drupal_set_message('<pre>'.print_r($deuda, true).'</pre>');
+		return $deuda;
+		
+	}
+	else {
+		return null;
+	}
+}
 ?>

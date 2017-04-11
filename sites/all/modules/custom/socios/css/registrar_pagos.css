@@ -3,3 +3,33 @@
 {
 	display: none;
 }
+
+div#rp-datos-socio-tit {
+    float: left;
+    width: 40%;
+}
+
+div#rp-socio-no-encontrado {
+    text-align: center;
+    padding: 20px;
+    border: solid yellow;
+    background-color: rgba(255, 255, 0, 0.15);
+}
+
+div#rp-socio-no-encontrado h2 {
+    margin: 0;
+}
+
+.form-item.form-type-select.form-item-f-tipo-doc {
+    float: left;
+    width: 20%;
+}
+
+.form-item.form-type-textfield.form-item-f-nro-doc {
+    margin-top: 19px;
+}
+
+.form-item.form-type-textfield.form-item-f-nro-doc .form-item input.error{
+    border: 2px solid red;
+    margin-bottom: -1px;
+}
