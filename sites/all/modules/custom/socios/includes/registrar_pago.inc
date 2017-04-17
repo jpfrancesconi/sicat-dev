@@ -155,7 +155,7 @@ function registrar_pagos_form($form, &$form_state)
 		}
 		
 		//drupal_set_message('<pre>'.print_r($cta_cte, true).'</pre>');
-	
+		
 		$form['datos_pago'] = array(
 				'#title' => t('DATOS DE CUENTA CORRIENTE'),
 				'#type' => 'fieldset',
@@ -210,7 +210,16 @@ function registrar_pagos_form($form, &$form_state)
 			$opciones[$id_cta_cte_item] = $opcion;
 		}
 		      
- 
+ 		
+ 		//se dispone de un select de cobrador para seleccionar el cobrador que corresponde el pago
+ 		$cobradores = get_cobradores_club_select(true);
+		$form['datos_pago']['personal'] = array(
+			'#title' => t('COBRADOR'),
+			'#type'=>'select',
+			'#options'=>$cobradores,
+			'#default_value'=> ((empty($_SESSION['registrar_pago']['personal_id'])||is_null($_SESSION['registrar_pago']['personal_id'])) ? null : $_SESSION['registrar_pago']['personal_id'])
+		);
+
 		$form['datos_pago']['listado_pago'] = array(
 	        '#type' => 'tableselect',
 	        '#header' => $header,
@@ -234,6 +243,15 @@ function registrar_pagos_form($form, &$form_state)
 			'#executes_submit_callback'=>false,
 		);
 
+		$form['datos_pago']['total'] = array(
+			'#type'=>'textfield',
+			'#title'=>'TOTAL A PAGAR',
+			'#default_value'=>0,
+			'#field_prefix'=>'$',
+			'#disabled'=>true,
+			'#size'=>5,
+		);
+
 		$form['datos_pago']['anulacion'] = array(   
 			'#prefix' => '<div id=panel-anular-pago-div>',
 			'#type'=>'fieldset',
@@ -254,7 +272,7 @@ function registrar_pagos_form($form, &$form_state)
 			'#type'=>'submit',
 			'#value'=>'ACEPTAR',
 			'#validate'=>array('aceptar_anulacion_form_validate'),
-			'#submit'=>array('aceptar_anulacion_form_submit')
+			'#submit'=>array('aceptar_anulacion_form_submit'),
 		);
 
 		$form['datos_pago']['anulacion']['cancelar_anulacion'] = array(
@@ -262,6 +280,7 @@ function registrar_pagos_form($form, &$form_state)
 			'#value'=>'CANCELAR',
 			'#executes_submit_callback'=>false,
 		);
+
     }
     //sino se mustra un mensaje 
     else if(isset($_GET['ns']) || isset($_GET['nd']))
@@ -315,6 +334,9 @@ function registrar_pagos_form_validate($form, &$form_state)
 	
 	if($suma_seleccion == 0)
     	form_set_error('listado_pago', 'No se ha seleccionado ningún item - Seleccione al menos uno para realizar la acción requerida.');
+
+    if($form_state['values']['personal'] == 0)
+    	form_set_error('personal', 'COBRADOR es obligatorio.');
     
 }
 
@@ -326,6 +348,9 @@ function registrar_pagos_form_submit($form, &$form_state)
 	$transaction = db_transaction();
 	try
 	{
+		//buscamos el cobrador seleccionado 
+		$cobro_id = $form_state['values']['personal']; 
+		$_SESSION['registrar_pago']['personal_id'] = $cobro_id;
 		//recorremos el listado mientras no sea 0
 		$listado_pago = $form_state['values']['listado_pago'];
 		foreach ($listado_pago as $item) {
@@ -334,7 +359,8 @@ function registrar_pagos_form_submit($form, &$form_state)
 
 			db_update('io_cta_cte_item')
 			->fields(array( 'pagado'=>1,
-				'fecha_pago'=>$fecha_pago,				
+				'fecha_pago'=>$fecha_pago,			
+				'cobro_id'=>$cobro_id,	
 				'usuario_mod'=>$uid,
 			))
 			->condition('id_cta_cte_item',$item,'=')
@@ -419,6 +445,7 @@ function ajax_anular_callback($form, &$form_state)
 {
 	//drupal_set_message('<pre>'.print_r($form_state['values'], true).'</pre>');
 	$_SESSION['anulando'] = 1;
+
 	return $form['datos_pago'];
 }
 

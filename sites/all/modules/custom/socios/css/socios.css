@@ -69,6 +69,7 @@ div#foto-socio img {
     width: 95%;
     border: solid #d00000;
     border-radius: 100%;
+    height: 300px;
 }
 
 div#foto-socio {

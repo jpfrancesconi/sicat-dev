@@ -100,6 +100,12 @@ function datos_socio_form($form, &$form_state)
 	        '#suffix'=>'</div>',
       	);
 
+      	$form['socios']['socio']['panel_socio']['datos_personales']['fecha_ingreso']= array(
+  			'#prefix'=>'<div id="datos-personales-socio"><div class="texto-dp" id="fecha-ingreso-socio">',
+	        '#markup'=>'<span><strong>FECHA DE INGRESO: </strong>'.$socio_seleccionado->fecha_ingreso.'</span>',
+	        '#suffix'=>'</div>',
+  		);
+
   		$form['socios']['socio']['panel_socio']['datos_personales']['direccion']= array(
   			'#prefix'=>'<div id="datos-personales-socio"><div class="texto-dp" id="domicilio-socio">',
 	        '#markup'=>'<span><strong>DOMICILIO: </strong>'.$socio_seleccionado->direccion.'</span>',

@@ -24,10 +24,6 @@ function gestionar_socios_form($form, &$form_state)
 	$form['#attached']['css'] = array(
 		drupal_get_path('module', 'socios') . '/css/socios.css',
 	);
-  	$form['#attached']['js'] = array(
-		drupal_get_path('module', 'socios') . '/js/socios.js',
-	);	
-
   	//recuperamos los parametros
 	if(isset($_SESSION[$formulario]['params']) && !empty($_SESSION[$formulario]['params']))
 	{
@@ -119,7 +115,8 @@ function gestionar_socios_form($form, &$form_state)
 		'apellidos'=>t('APELLIDO'),
 	    'nombres'=>t('NOMBRE'),
 	    'tipo_doc'=>t('TIPO DOC.'), 
-	    'nro_doc'=>t('NUMERO DOC.'), 
+	    'nro_doc'=>t('NUMERO DOC.'),
+	    'fecha_ingreso'=>t('FECHA DE INGRESO'), 
 	    'estado'=>t('ESTADO'),
 	    'categoria_socio'=>t('CATEGORÍA'),
 	    'tipo_socio'=>t('TIPO DE SOCIO'),
@@ -148,11 +145,11 @@ function gestionar_socios_form($form, &$form_state)
 			$fila_socio =  
 			  array(
 			    'nro_socio'=> $socio->nro_socio.'/'.$socio->secuencia,
-			    'apellidos'=> $socio->apellidos,
-			    //'monto_acreditado'=> number_format($acreditacion['monto'], 2, ",", "."),
+			    'apellidos'=> $socio->apellidos,			    
 			    'nombres'=> $socio->nombres,
 			    'tipo_doc'=> $socio->tipo_doc,
 			    'nro_doc'=> $socio->nro_doc,
+			    'fecha_ingreso'=> $socio->fecha_ingreso,
 			    'estado'=> $socio->estado,
 			    'categoria_socio'=> $socio->categoria_socio,
 			    'tipo_socio'=> $socio->tipo_socio,

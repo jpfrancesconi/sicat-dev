@@ -38,6 +38,7 @@ function get_socios($apellidos=NULL, $nombres=NULL, $nro_socio=NULL,$estado=NULL
 	if(!is_null($categoria_socio)&& isset($categoria_socio))
 		$select->condition('cate.id_categoria_socio', $categoria_socio, '=');
 	$select->addExpression('IF(soc.nro_socio IS NULL, gf.nro_socio_titular , soc.nro_socio)', 'nro_socio');
+	$select->addExpression('date_format(soc.fecha_ingreso, \'%d/%m/%Y\')','fecha_ingreso');
 	$select->orderBy('nro_socio', 'asc');
 	$select->orderBy('soc.secuencia', 'asc');
 	//$select->limit($limit);
@@ -331,6 +332,34 @@ function get_cobradores_select()
 	{
 		$cobradores = array();  
 		$row = array(); 
+
+		foreach($result as $record){
+			$row = (array)$record;
+			$cobradores[$row['id_personal']] = $row['nombres'];
+		}
+	}
+
+	return $cobradores;
+}
+
+//obtiene todos el personal vinculado al club como cobradores y tambien agrega al club talleres
+function get_cobradores_club_select($seleccionar=false)
+{
+	$result = db_query('select pl.id_personal, per.nombres
+						from io_personal as pl
+						inner join io_persona as per on per.id_persona = pl.persona_id
+						')->fetchAll();
+
+	//drupal_set_message('<pre>'.print_r($consorcio, true).'</pre>');
+	if(empty($result[0]))
+		$cobradores = null;
+	else
+	{
+		$cobradores = array();  
+		$row = array(); 
+		
+		if($seleccionar)
+			array_push($cobradores, '- Seleccionar -');
 
 		foreach($result as $record){
 			$row = (array)$record;

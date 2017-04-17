@@ -33,3 +33,26 @@ div#rp-socio-no-encontrado h2 {
     border: 2px solid red;
     margin-bottom: -1px;
 }
+
+.form-item.form-type-textfield.form-item-total.form-disabled {
+    float: right;
+    font-size: 1.4em;
+    margin: 0;
+    margin-top: -9px;
+    width: 32%;
+    padding-left: 10px;
+    background-color: rgb(255, 255, 204);
+}
+
+.form-item.form-type-textfield.form-item-total.form-disabled label {
+    float: left;
+    margin-right: 10px;
+    margin-top: 10px;
+}
+
+input#edit-total {
+    border: none;
+    background-color: transparent;
+    font-size: 1.2em;
+    padding-left: 0;
+}
