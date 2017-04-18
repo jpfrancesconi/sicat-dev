@@ -51,4 +51,38 @@ function get_localidades_select($id_provincia)
 	return $localidades;
 
 }
+
+function get_roles_usuario_logueado()
+{
+	$result = db_query('SELECT R.rid
+	FROM role R
+	INNER JOIN users_roles U_R ON R.RID = U_R.RID
+	INNER JOIN users U ON U.UID = U_R.UID
+	WHERE U.UID = :uid', array(':uid'=>$GLOBALS['user']->uid))->fetchAll();
+	
+	if(empty($result[0]))
+		$roles = array();
+	else
+	{
+		$roles = array();  
+    $row = array(); 
+    $i = 0;
+
+    foreach($result as $record){
+     	$row = (array)$record;
+		  $roles[$i] = $row['rid'];
+		  $i++;
+    }
+	}
+	//drupal_set_message('<pre>'.print_r($roles, true).'</pre>');
+	return $roles;
+}
+
+function es_usr_secretaria_control($roles)
+{
+	if(buscar_array(9, $roles))
+		return true;
+	else
+		return false;
+}
 ?>

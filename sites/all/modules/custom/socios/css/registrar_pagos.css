@@ -59,6 +59,23 @@ input#edit-total {
 
 div#rp-forma-pago,
 div#rp-cobrador {
-    background-color: red;
+    background-color: #ff4747;
     color: white;
+}
+
+div#rp-tipo-gf {
+    float: left;
+    width: 23%;
+}
+
+div#rp-nombre-tipo-gf {
+    padding-top: 2px;
+    margin-bottom: 11px;
+    width: 100%;
+    font-size: 1.2em;
+}
+
+div#listado-pagos-socio table .select-all input
+{
+    display: none;
 }

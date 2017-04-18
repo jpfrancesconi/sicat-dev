@@ -19,7 +19,7 @@
                     {                         
                         $(this).children("td").each(function (index2) 
                         {       
-                        console.log($(this).children('td .form-type-checkbox input'));                 
+                       // console.log($(this).children('td .form-type-checkbox input'));                 
                             if(index2==0)
                             {      
                                 if($(this).children('td .form-type-checkbox input').context.children["0"].children["0"].checked) {                                
@@ -39,6 +39,7 @@
                     $('#edit-total').val(total);
                                                                                 
             });
+            
         }			
     } 
 }(jQuery));

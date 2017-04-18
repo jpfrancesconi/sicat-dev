@@ -71,5 +71,15 @@ function get_params_url($url)
 		
 }
 
+function buscar_array($dato, $array)
+{
+	for($i=0;$i<count($array);$i++)
+	{	
+		if($array[$i]==$dato)
+				return TRUE;
+	}	
+
+	return FALSE;
+} 
 
 ?>

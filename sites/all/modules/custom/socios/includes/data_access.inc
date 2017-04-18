@@ -64,6 +64,7 @@ function get_socio_por_id($id_socio)
 	soc.estado_socio_id,
 	soc.categoria_socio_id,
 	soc.lugar_cobro,
+	soc.personal_id,
 	per.tipo_doc, 
 	per.nro_doc,
 	per.apellidos,
@@ -232,7 +233,7 @@ function get_socio_grupo_familiar($id_socio)
 						INNER JOIN io_tipo_grupo_familiar tgf ON gf.tipo_grupo_familiar_id = tgf.id_tipo_grupo_familiar
 						WHERE gf.id_grupo_familiar = :id_grupo_familiar AND soc.id_socio = :id_socio', array(':id_grupo_familiar' => $id_grupo_familiar, ':id_socio' => $id_socio ))->fetchObject();
 	
-	//drupal_set_message('<pre>'.print_r($grupo_familiar_socios, true).'</pre>');
+	//drupal_set_message('<pre>'.print_r($grupo_familiar_socio, true).'</pre>');
 	return $grupo_familiar_socio;	
 }
 
@@ -518,10 +519,11 @@ function titular_autocomplete() {
 //obtiene el grupo familiar del socio
 function get_grupo_familiar($id_socio)
 {	
-	$grupo_familiar = db_query('SELECT gf.* 
+	$grupo_familiar = db_query('SELECT gf.*, gft.nombre as nombre_tipo_grupo_familiar 
 								FROM io_grupo_familiar_socio gfs
 								INNER JOIN io_socio soc ON soc.id_socio = gfs.socio_id
 								INNER JOIN io_grupo_familiar gf ON gf.id_grupo_familiar = gfs.grupo_familiar_id
+								INNER JOIN io_tipo_grupo_familiar gft ON gft.id_tipo_grupo_familiar = gf.tipo_grupo_familiar_id
 								WHERE soc.id_socio =:id_socio', array(':id_socio' => $id_socio ))->fetchObject();
 
 	//drupal_set_message('<pre>'.print_r($grupo_familiar, true).'</pre>');
@@ -530,9 +532,8 @@ function get_grupo_familiar($id_socio)
 }
 
 //obtiene la cuenta corriente del socio
-function get_cta_cte($id_socio)
+function get_estado_cta_cte($id_socio)
 {
-	//buscamos el id del grupo familiar del cual es titular
 	$cta_cte_socio = db_query('SELECT date_format(cci.fecha_emision, \'%d/%m/%Y\') as fecha_emision, cci.mes, cci.anio, con.nombre as concepto, cci.valor, IF(cci.pagado = 1, \'SI\', \'NO\') AS pagado, date_format(cci.fecha_pago, \'%d/%m/%Y\') as fecha_pago, IF(cci.anulado = 1, \'SI\', \'NO\') AS anulado 
 		FROM io_cta_cte cc
 		INNER JOIN io_cta_cte_item cci ON cc.id_cta_cte = cci.cta_cte_id
@@ -750,7 +751,7 @@ function get_pago_por_id_socio($id_socio, $mes=null, $anio=null, $pagado=null, $
 	if(!is_null($refinanciado))
 		$filtro_pagado =$filtro_pagado.' AND cci.refinanciado = '.$refinanciado;
 	
-	$pago = db_query('SELECT soc.nro_socio, cci.id_cta_cte_item, date_format(cci.fecha_emision, \'%d/%m/%Y\') as fecha_emision, cci.mes, cci.anio, con.nombre as concepto, cci.valor, IF(cci.pagado = 1, \'SI\', \'NO\') AS pagado, date_format(cci.fecha_pago, \'%d/%m/%Y\') as fecha_pago, IF(cci.anulado = 1, \'SI\', \'NO\') AS anulado
+	$pago = db_query('SELECT soc.nro_socio, cci.id_cta_cte_item, date_format(cci.fecha_emision, \'%d/%m/%Y\') as fecha_emision, cci.mes, cci.anio,con.id_concepto, con.nombre as concepto, cci.valor, IF(cci.pagado = 1, \'SI\', \'NO\') AS pagado, date_format(cci.fecha_pago, \'%d/%m/%Y\') as fecha_pago, IF(cci.anulado = 1, \'SI\', \'NO\') AS anulado
 					FROM io_cta_cte_item cci
 					INNER JOIN io_cta_cte cc on cci.cta_cte_id = cc.id_cta_cte
 					INNER JOIN io_socio soc on cc.socio_id = soc.id_socio
@@ -871,5 +872,96 @@ function consultar_deuda($id_socio)
 	else {
 		return null;
 	}
+}
+
+function importe_cuota_gf($tipo_grupo_familiar)
+{
+	$tipo_grupo_familiar_socio = db_query('SELECT *
+						FROM io_tipo_grupo_familiar tgf
+						WHERE tgf.id_tipo_grupo_familiar = :tipo_grupo_familiar'
+						,array(':tipo_grupo_familiar' => $tipo_grupo_familiar))->fetchObject();
+		
+	if(isset($tipo_grupo_familiar_socio->importe))
+		return $tipo_grupo_familiar_socio->importe;
+	else
+		return 0;
+}
+
+function importe_cuota_su($categoria)
+{
+	$categoria_socio = db_query('SELECT *
+						FROM io_categoria_socio cat
+						WHERE cat.id_categoria_socio = :categoria'
+						,array(':categoria' => $categoria))->fetchObject();
+		//drupal_set_message('<pre>'.print_r($categoria_socio, true).'</pre>');
+	if(isset($categoria_socio->importe_cuota))
+		return $categoria_socio->importe_cuota;
+	else
+		return 0;
+}
+
+function get_cta_cte_por_id_socio($id_socio)
+{
+	$cta_cte_socio = db_query('SELECT *
+						FROM io_cta_cte cc
+						WHERE cc.socio_id = :id_socio'
+						,array(':id_socio' => $id_socio))->fetchObject();
+		//drupal_set_message('<pre>'.print_r($categoria_socio, true).'</pre>');
+	if(isset($cta_cte_socio->id_cta_cte))
+		return $cta_cte_socio;
+	else
+		return null;
+}
+
+//genera una cuota para la cuenta corriente del socio
+function generar_cuota($id_socio, $concepto_id, $mes, $anio)
+{
+	$uid = $GLOBALS['user']->uid;
+	//buscamos el socio
+	$socio = get_socio_por_id($id_socio);
+
+	//buscamos la cuenta corriente del socio
+	$cta_cte_socio = get_cta_cte_por_id_socio($id_socio);
+
+	//el importe se obtiene dependiendo del tipo de socio 
+	if($socio->tipo_socio_id == 1)
+	{//si es socio unico buscamos el importe segun su categoria
+		$importe = importe_cuota_su($socio->categoria_socio_id);
+	}
+	else if($socio->tipo_socio_id == 3)
+	{//si es titular de familia se debe buscar el tipo de grupo familiar
+		$grupo_familiar = get_grupo_familiar($socio->id_socio);
+		$tipo_grupo_familiar = $grupo_familiar->tipo_grupo_familiar_id;
+		$importe = importe_cuota_gf($tipo_grupo_familiar);
+	}
+	else
+	{//cualquier otro caso se retorna falso ya que no se debera generar nada
+		return false;
+	}
+
+	$cobrador_id = null;
+	//buscamos la forma de pago del socio
+	if($socio->forma_pago_id == 1 || $socio->forma_pago_id == 3)
+	{
+		$cobrador_id = $socio->personal_id;
+	}
+
+	$fecha_emision = date('Y').'-'.date('m').'-'.date('d');
+
+	$id_item_cta_cte = db_insert('io_cta_cte_item')
+			->fields(array( 
+				'fecha_emision'=>$fecha_emision,
+				'cta_cte_id'=>$cta_cte_socio->id_cta_cte,
+				'mes'=>$mes,
+				'anio'=>$anio,
+				'concepto_id'=>$concepto_id,
+				'valor'=>$importe,
+				'cobrador_id'=>$cobrador_id,
+				'usuario_mod'=>$uid,
+				'usuario_alta'=>$uid,
+			))
+			->execute();
+
+	return true;
 }
 ?>

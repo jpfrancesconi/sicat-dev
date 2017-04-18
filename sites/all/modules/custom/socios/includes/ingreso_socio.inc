@@ -242,7 +242,7 @@ function ingreso_socio_form($form, &$form_state)
 				'#title'=>t('CUENTA CORRIENTE'),
 	  		);
 
-	  		$cuenta_corriente = get_cta_cte($socio_seleccionado->id_socio);
+	  		$cuenta_corriente = get_estado_cta_cte($socio_seleccionado->id_socio);
 
 	  		$form['socios']['socio']['panel_socio']['cuenta_corriente']['listado_cta_cte']= array(    
 		    	'#markup' => get_listado_cuenta_corriente_markup($cuenta_corriente),

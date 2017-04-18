@@ -21,6 +21,9 @@ function registrar_pagos_form($form, &$form_state)
 	$form['#attached']['js'] = array(
 		drupal_get_path('module', 'socios') . '/js/anular_pagos.js',
 	);
+	
+	//buscamos los roles del usuario logueado
+  	$roles = get_roles_usuario_logueado();
 
 	$disabled = false;
 
@@ -113,7 +116,15 @@ function registrar_pagos_form($form, &$form_state)
 			{
 				$forma_pago = $forma_pago.'<div class="rp-socio" id="rp-forma-pago"><strong>FORMA DE PAGO: </strong>'.$socio_titular_familia->forma_pago_nombre.'</div>';
 			}
+
 			//buscamos los datos del socio y armamamos un string con el html necesario
+			$form['datos_socio']['grupo_familar_socio'] = array( 
+    		'#markup' =>'<div id="rp-datos-socio-gf">    					
+    						<div class="rp-gf" id="rp-tipo-gf"><h2>TIPO DE GRUPO FAMILIAR: </h2></div>
+    						<div class="rp-gf" id="rp-nombre-tipo-gf">'.$grupo_familiar->nombre_tipo_grupo_familiar.'</div>    					
+    					</div>',
+    		);
+
 			$form['datos_socio']['titular'] = array( 
     		'#markup' =>'<div id="rp-datos-socio-tit">
     						<div class="rp-socio" id="cabecera-socio-titular"><h2>DATOS DEL TITULAR</h2></div>
@@ -145,7 +156,10 @@ function registrar_pagos_form($form, &$form_state)
 			//pagado = 0
 			//refinanciado = 0
 			//anulado = 0
-			$cta_cte = get_pago_por_id_socio($socio_titular_familia->id_socio, null, null, 0, 0, 0);		
+			$cta_cte = get_pago_por_id_socio($socio_titular_familia->id_socio, null, null, 0, 0, 0);	
+			//guardamos el id del estado del socio y el tipo de grupo familiar 
+			$estado_socio_id = $socio_titular_familia->estado_socio_id;	
+			$tipo_grupo_familiar = $grupo_familiar->tipo_grupo_familiar_id;
 		}
 		else
 		{
@@ -183,8 +197,16 @@ function registrar_pagos_form($form, &$form_state)
 			//refinanciado = 0
 			//anulado = 0
 			$cta_cte = get_pago_por_id_socio($socio->id_socio, null, null, 0, 0, 0);
+
+			//guardamos el id del socio y la categoria del socio 
+			$estado_socio_id = $socio->estado_socio_id;
+			$categoria = $socio->categoria_socio_id;
 		}
 		
+		//buscamos el tipo de estado de socio para determinar si es baja o no
+		$tipo_estado = get_tipo_estado($estado_socio_id);
+	    //si estipo baja se debe actualizar el valor de los conceptos y cambiar el encabezado 
+
 		//drupal_set_message('<pre>'.print_r($cta_cte, true).'</pre>');
 		
 		$form['datos_pago'] = array(
@@ -200,7 +222,7 @@ function registrar_pagos_form($form, &$form_state)
         'mes' => array('data'=>t('MES')), 
         'anio' => array('data'=>t('AÑO')), 
         'concepto' => array('data'=>t('CONCEPTO')),        
-        'valor' => array('data'=>t('VALOR')),
+        'valor' =>($tipo_estado == 1 ? array('data'=>t('VALOR ACTUALIZADO')) : array('data'=>t('VALOR'))),
         'pagado' => array('data'=>t('PAGADO')),
         'fecha_pago' => array('data'=>t('FECHA DE PAGO')),
         'anulado' => array('data'=>t('ANULADO')),
@@ -220,13 +242,32 @@ function registrar_pagos_form($form, &$form_state)
 		  	else
 		  		$color_anulado = "red";
 
+		  	//si el socio esta en estado de baja se debe actualizar el valor de los conceptos
+		  	if($tipo_estado == 1)
+		  	{
+		  		//por ahora solo se busca el valor para el concepto cuota social
+		  		if($item_cta_cte->id_concepto == 1)
+		  		{
+		  			//vemos si es un grupo familiar o un socio unico. 
+		  			//si es grupo familiar el valor se calcula buscando por tipo de grupo familiar
+		  			if(isset($tipo_grupo_familiar))
+		  			{
+		  				$valor = importe_cuota_gf($tipo_grupo_familiar);
+		  			}//sino tenemos que actualizar el valor tomandolo desde la categoria del socio
+		  			else if(isset($categoria))
+		  			{
+		  				$valor = importe_cuota_su($categoria);
+		  			}
+		  		}
+		  	} 
+
 			$opcion =  
 			  array(
 			    'fecha_emision'=> $item_cta_cte->fecha_emision,
 			    'mes'=>$item_cta_cte->mes,
 			    'anio'=>$item_cta_cte->anio,    
 			    'concepto'=>$item_cta_cte->concepto,
-			    'valor'=>$item_cta_cte->valor,
+			    'valor'=>($tipo_estado == 1 ? $valor : $item_cta_cte->valor),
 			    'pagado'=>array('data'=>'<div style="color:'.$color.';"><strong>'.$item_cta_cte->pagado.'</strong></div>'),	
 			    'fecha_pago'=>$item_cta_cte->fecha_pago,
 			    'anulado'=>array('data'=>'<div style="color:'.$color_anulado.';"><strong>'.$item_cta_cte->anulado.'</strong></div>'),
@@ -268,11 +309,15 @@ function registrar_pagos_form($form, &$form_state)
 			'#submit'=>array('registrar_pagos_form_submit')
 		);
 
-		$form['datos_pago']['anular'] = array(
-			'#type'=>'submit',
-			'#value'=>'ANULAR PAGOS',
-			'#executes_submit_callback'=>false,
-		);
+		if(es_usr_secretaria_control($roles))
+		{
+			$form['datos_pago']['anular'] = array(
+				'#type'=>'submit',
+				'#value'=>'ANULAR PAGOS',
+				'#executes_submit_callback'=>false,
+			);	
+		}
+		
 
 		$form['datos_pago']['total'] = array(
 			'#type'=>'textfield',
