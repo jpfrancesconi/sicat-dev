@@ -98,7 +98,21 @@ function registrar_pagos_form($form, &$form_state)
 			$socio->nro_socio = $grupo_familiar->nro_socio_titular;
 			//TODO: SI CAMBIA NRO_SOCIO_TITULAR POR ID_SOCIO_TITULAR CAMBIAR ACA
 			$socio_titular_familia = get_socio_por_nro_socio($grupo_familiar->nro_socio_titular);
-
+			//drupal_set_message('<pre>'.print_r($socio_titular_familia, true).'</pre>');
+			//dependiendo de la forma de pago los datos que vamos a mostrar
+			//se usa un string que se adiciono al markup  donde se muestran los datos del titualar
+			//comienza siendo vacio
+			$forma_pago = '';
+			if($socio_titular_familia->forma_pago_id == 1)
+			{//si la forma de pago es por cobrador, tenemos que buscar el cobrador que le corresponde
+				$cobrador = get_personal_por_id($socio_titular_familia->personal_id);
+				$forma_pago = $forma_pago.'<div class="rp-socio" id="rp-forma-pago"><strong>FORMA DE PAGO: </strong>'.$socio_titular_familia->forma_pago_nombre.'</div>
+				<div class="rp-socio" id="rp-cobrador"><strong>COBRADOR: </strong>'.$cobrador->apellidos.' '.$cobrador->nombres.'</div>';
+			}
+			else
+			{
+				$forma_pago = $forma_pago.'<div class="rp-socio" id="rp-forma-pago"><strong>FORMA DE PAGO: </strong>'.$socio_titular_familia->forma_pago_nombre.'</div>';
+			}
 			//buscamos los datos del socio y armamamos un string con el html necesario
 			$form['datos_socio']['titular'] = array( 
     		'#markup' =>'<div id="rp-datos-socio-tit">
@@ -108,6 +122,7 @@ function registrar_pagos_form($form, &$form_state)
     						<div class="rp-socio" id="rp-nombres"><strong>NOMBRES: </strong>'.$socio_titular_familia->nombres.'</div>
     						<div class="rp-socio" id="rp-tipo-socio"><strong>TIPO DE SOCIO: </strong>'.$socio_titular_familia->tipo_socio.'</div>
     						<div class="rp-socio" id="rp-estado"><strong>ESTADO: </strong>'.$socio_titular_familia->estado.'</div>
+    						'.$forma_pago.'
     						</div>',
     		);
 
@@ -134,6 +149,21 @@ function registrar_pagos_form($form, &$form_state)
 		}
 		else
 		{
+			//dependiendo de la forma de pago los datos que vamos a mostrar
+			//se usa un string que se adiciono al markup  donde se muestran los datos del titualar
+			//comienza siendo vacio
+			$forma_pago = '';
+			if($socio->forma_pago_id == 1)
+			{//si la forma de pago es por cobrador, tenemos que buscar el cobrador que le corresponde
+				$cobrador = get_personal_por_id($socio->personal_id);
+				$forma_pago = $forma_pago.'<div class="rp-socio" id="rp-forma-pago"><strong>FORMA DE PAGO: </strong>'.$socio->forma_pago_nombre.'</div>
+				<div class="rp-socio" id="rp-cobrador"><strong>COBRADOR: </strong>'.$cobrador->apellidos.' '.$cobrador->nombres.'</div>';
+			}
+			else
+			{
+				$forma_pago = $forma_pago.'<div class="rp-socio" id="rp-forma-pago"><strong>FORMA DE PAGO: </strong>'.$socio->forma_pago_nombre.'</div>';
+			}
+
 			$form['datos_socio']['socio'] = array( 
     		'#markup' =>'<div id="rp-datos-socio">
     						<div class="rp-socio" id="rp-nro-socio"><strong>NUMERO DE SOCIO: </strong>'.$socio->nro_socio.'/'.$socio->secuencia.'</div>
@@ -142,6 +172,7 @@ function registrar_pagos_form($form, &$form_state)
     						<div class="rp-socio" id="rp-tipo-socio"><strong>TIPO DE SOCIO: </strong>'.$socio->tipo_socio.'</div>
     						<div class="rp-socio" id="rp-estado"><strong>ESTADO: </strong>'.$socio->estado.'</div>
     						<div class="rp-socio" id="rp-categoria"><strong>CATEGORIA: </strong>'.$socio->categoria.'</div>
+    						'.$forma_pago.'
     						</div>',
     		);
 			//se buscan los pagos del socio con los parametros:

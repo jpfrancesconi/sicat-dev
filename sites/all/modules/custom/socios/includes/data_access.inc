@@ -113,6 +113,7 @@ function get_socio_por_nro_socio($nro_socio)
 	soc.estado_socio_id,
 	soc.categoria_socio_id,
 	soc.lugar_cobro,
+	soc.personal_id,
 	per.tipo_doc, 
 	per.nro_doc,
 	per.apellidos,
@@ -134,12 +135,14 @@ function get_socio_por_nro_socio($nro_socio)
 	loc.ID_LOCALIDAD as id_localidad,
 	prov.ID_PROVINCIA as id_provincia,
 	per.id_persona,
-	per.uri_foto
+	per.uri_foto,
+	fp.nombre as forma_pago_nombre
 	FROM io_socio soc 
 	LEFT JOIN io_persona per on per.id_persona = soc.persona_id
 	LEFT JOIN io_estado_socio est on est.id_estado_socio = soc.estado_socio_id
 	LEFT JOIN io_tipo_socio tip on soc.tipo_socio_id = tip.id_tipo_socio
 	LEFT JOIN io_categoria_socio cat on soc.categoria_socio_id = cat.id_categoria_socio 
+	LEFT JOIN io_forma_pago fp on soc.forma_pago_id = fp.id_forma_pago 
 	LEFT JOIN io_localidad loc on loc.ID_LOCALIDAD = per.localidad_id 
 	LEFT JOIN io_provincia prov on prov.ID_PROVINCIA = loc.PROVINCIA_ID
 	WHERE soc.nro_socio = :nro_socio
@@ -645,6 +648,19 @@ function get_estado_por_id($id_estado_socio)
 	return $estado;
 }
 
+//obtiene un personal en particualar
+function get_personal_por_id($id_personal)
+{
+	$personal = db_query('SELECT personal.*, per.*
+						FROM io_personal personal
+						INNER JOIN io_persona per on per.id_persona = personal.persona_id
+						WHERE personal.id_personal=:id_personal', array(':id_personal' => $id_personal))->fetchObject();
+
+	//drupal_set_message('<pre>'.print_r($personal, true).'</pre>');
+
+	return $personal;
+}
+
 //obtiene los tipos de grupo familiar
 function get_get_tipos_grupo_familiar()
 {
@@ -829,7 +845,7 @@ function replicar_baja_a_grupo_familiar($id_socio, $id_estado_socio)
 		'estado_socio_id'=>$id_estado_socio,				
 		'usuario_mod'=>$uid,
 		))
-		->condition('id_socio',$id_socio,'=')
+		->condition('id_socio',$socio->id_socio,'=')
 		->execute();
 	}
 }
