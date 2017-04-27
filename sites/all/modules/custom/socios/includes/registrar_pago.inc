@@ -22,6 +22,10 @@ function registrar_pagos_form($form, &$form_state)
 		drupal_get_path('module', 'socios') . '/js/anular_pagos.js',
 	);
 	
+	$form['#attached']['js'] = array(
+		drupal_get_path('module', 'generico') . '/js/imprimir.js',
+	);
+
 	//buscamos los roles del usuario logueado
   	$roles = get_roles_usuario_logueado();
 
@@ -308,6 +312,10 @@ function registrar_pagos_form($form, &$form_state)
 			'#validate'=>array('registrar_pagos_form_validate'),
 			'#submit'=>array('registrar_pagos_form_submit')
 		);
+
+		$form['datos_pago']['imprimir'] = array(
+			'#markup'=>'<div id="imprimir"><a href="#" onclick="PrintElem(\'listado-pagos-socio\')">IMPRIMIR</a></div>',
+		);		
 
 		if(es_usr_secretaria_control($roles))
 		{

@@ -7,6 +7,9 @@
 */
 function get_socios($apellidos=NULL, $nombres=NULL, $nro_socio=NULL,$estado=NULL, $tipo_socio=NULL, $categoria_socio=NULL)
 {
+	$apellidos = mb_strtoupper($apellidos, 'UTF-8');
+	$nombres = mb_strtoupper($nombres, 'UTF-8');
+	
 	$limit = 50;
 	$select = db_select('io_socio', 'soc');
 	$select->join('io_persona', 'per', 'soc.persona_id = per.id_persona');
@@ -46,7 +49,7 @@ function get_socios($apellidos=NULL, $nombres=NULL, $nro_socio=NULL,$estado=NULL
 	$socios = $select->execute();
 
 	
-	//drupal_set_message('<pre>'.print_r($socios, true).'</pre>');
+	//drupal_set_message('<pre>'.print_r($SELECT, true).'</pre>');
 	return $socios;	
 }
 
@@ -327,7 +330,8 @@ function get_cobradores_select()
 	$result = db_query('select pl.id_personal, per.nombres
 						from io_personal as pl
 						inner join io_persona as per on per.id_persona = pl.persona_id
-						where per.id_persona != 3')->fetchAll();
+						where per.id_persona != 3
+						and pl.activo = 1')->fetchAll();
 
 	//drupal_set_message('<pre>'.print_r($consorcio, true).'</pre>');
 	if(empty($result[0]))
@@ -352,6 +356,7 @@ function get_cobradores_club_select($seleccionar=false)
 	$result = db_query('select pl.id_personal, per.nombres
 						from io_personal as pl
 						inner join io_persona as per on per.id_persona = pl.persona_id
+						where pl.activo = 1
 						')->fetchAll();
 
 	//drupal_set_message('<pre>'.print_r($consorcio, true).'</pre>');
@@ -576,10 +581,14 @@ function validar_tipo_grupo_familiar($grupo_familiar)
 	//cantidad de integrantes mayores a 6 años
 	$mas_de_seis = 0;
 	for ($i=0; $i < count($grupo_familiar) ; $i++) { 
-		if($grupo_familiar[$i]->edad >= 6)
-			$mas_de_seis++;
+		//buscamos el tipo de estado para ver si no es de tipo baja
+		$tipo_estado = get_tipo_estado($grupo_familiar[$i]->estado_socio_id);
+		//si tipo_estado vale 1 es porque esta en baja el socio de ser asi no computa para validar
+		if($tipo_estado == 0)
+			if($grupo_familiar[$i]->edad >= 6)
+				$mas_de_seis++;
 	}
-
+	
 	if($mas_de_seis > $grupo_familiar[0]->cant_int_hasta || $mas_de_seis < $grupo_familiar[0]->cant_int_desde)
 	{
 		return true;
@@ -693,13 +702,18 @@ function get_pago_por_cod_barras($cod_barras)
 	//conformacion de codigo de barras 
 	//02310120175.447
 	$mes = substr($cod_barras, 0, 2);
+	//drupal_set_message('MES:'.$mes);
 	$fecha_emision = substr($cod_barras, 2, 8);
+	///drupal_set_message('FECHA EMISION:'.$fecha_emision);
 	$fecha_dia = substr($fecha_emision, 0, 2);
 	$fecha_mes = substr($fecha_emision, 2, 2);
 	$fecha_anio = substr($fecha_emision, 4, 4);
 	$fecha_emision = $fecha_anio.'-'.$fecha_mes.'-'.$fecha_dia;
+	//drupal_set_message('FECHA EMISION 2:'.$fecha_emision);
 	$num_socio = substr($cod_barras, 10, $long_cod_barras-10);
+	//drupal_set_message('NUMERO SOCIO :'.$num_socio);
 	$num_socio = str_replace('.', '', $num_socio);
+	//drupal_set_message('NUMERO SOCIO 2:'.$num_socio);
 
 	$pago = db_query('SELECT soc.nro_socio, cci.id_cta_cte_item, date_format(cci.fecha_emision, \'%d/%m/%Y\') as fecha_emision, cci.mes, cci.anio, con.nombre as concepto, cci.valor, IF(cci.pagado = 1, \'SI\', \'NO\') AS pagado, date_format(cci.fecha_pago, \'%d/%m/%Y\') as fecha_pago, IF(cci.anulado = 1, \'SI\', \'NO\') AS anulado
 					FROM io_cta_cte_item cci

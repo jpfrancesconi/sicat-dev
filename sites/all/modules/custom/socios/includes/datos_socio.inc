@@ -290,12 +290,20 @@ function get_listado_grupo_familiar_markup($grupo_familiar)
 {
   $grupo_familiar_mostrar = array();
   
-  for ($i=0;$i<count($grupo_familiar);$i++) {        
-    $grupo_familiar_mostrar[$i]['nro_socio'] = $grupo_familiar[$i]->nro_socio_titular.'/'.$grupo_familiar[$i]->secuencia;
-    $grupo_familiar_mostrar[$i]['apellidos'] = $grupo_familiar[$i]->apellidos;
- 	$grupo_familiar_mostrar[$i]['nombres'] = $grupo_familiar[$i]->nombres;    
- 	$grupo_familiar_mostrar[$i]['edad'] = $grupo_familiar[$i]->edad;
- 	$grupo_familiar_mostrar[$i]['parentezco'] = $grupo_familiar[$i]->parentezco;
+  for ($i=0;$i<count($grupo_familiar);$i++) {   
+	//buscamos el tipo de estado para ver si no es de tipo baja
+	$tipo_estado = get_tipo_estado($grupo_familiar[$i]->estado_socio_id);     
+	
+	if($tipo_estado == 1)
+		$clase = 'en-baja';
+	else
+		$clase = 'en-alta';
+
+    $grupo_familiar_mostrar[$i]['nro_socio'] = '<span class="'.$clase.'">'.$grupo_familiar[$i]->nro_socio_titular.'/'.$grupo_familiar[$i]->secuencia.'</span>';
+    $grupo_familiar_mostrar[$i]['apellidos'] = '<span class="'.$clase.'">'.$grupo_familiar[$i]->apellidos.'</span>';
+ 	$grupo_familiar_mostrar[$i]['nombres'] = '<span class="'.$clase.'">'.$grupo_familiar[$i]->nombres.'</span>';    
+ 	$grupo_familiar_mostrar[$i]['edad'] = '<span class="'.$clase.'">'.$grupo_familiar[$i]->edad.'</span>';
+ 	$grupo_familiar_mostrar[$i]['parentezco'] = '<span class="'.$clase.'">'.$grupo_familiar[$i]->parentezco.'</span>';
   }  
  
   $header = array('NUMERO DE SOCIO', 'APELLIDOS', 'NOMBRES', 'EDAD', 'PARENTEZCO');

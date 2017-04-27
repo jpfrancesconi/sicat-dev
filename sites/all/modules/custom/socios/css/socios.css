@@ -143,8 +143,8 @@ div#categoria-socio-invalida {
     animation-iteration-count: 3;
     padding: 10px;
     text-align: center;
-    color: red;
-    background-color: #fbbaba;
+    color: #0038fd;
+    background-color: #a5b9ff;
     margin-bottom: 10px;
 }
 
@@ -152,6 +152,11 @@ div#categoria-socio-invalida {
     border: solid 2px green;
     background-color: #c3f5c3;
     padding: 10px;
+}
+
+.en-baja
+{
+    color:red;
 }
 
 

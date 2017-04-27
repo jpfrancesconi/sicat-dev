@@ -118,7 +118,7 @@ function gestionar_socios_form($form, &$form_state)
 	    'nro_doc'=>t('NUMERO DOC.'),
 	    'fecha_ingreso'=>t('FECHA DE INGRESO'), 
 	    'estado'=>t('ESTADO'),
-	    'categoria_socio'=>t('CATEGORÍA'),
+	    'categoria_socio'=>t('CAT. O TIPO GRUPO FAMILIAR'),
 	    'tipo_socio'=>t('TIPO DE SOCIO'),
     );
 	
@@ -140,6 +140,14 @@ function gestionar_socios_form($form, &$form_state)
 			{
 				$grupo_familiar = get_grupo_familiar($socio->id_socio);
 				$socio->nro_socio = $grupo_familiar->nro_socio_titular;
+				if(isset($grupo_familiar->nombre_tipo_grupo_familiar))
+					$socio->categoria_socio = $grupo_familiar->nombre_tipo_grupo_familiar;
+			}
+			else if($socio->id_tipo_socio == 3)
+			{
+				$grupo_familiar = get_grupo_familiar($socio->id_socio);
+				if(isset($grupo_familiar->nombre_tipo_grupo_familiar))
+					$socio->categoria_socio = $grupo_familiar->nombre_tipo_grupo_familiar;
 			}
 
 			$fila_socio =  
