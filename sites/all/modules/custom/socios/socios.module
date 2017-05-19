@@ -1,4 +1,4 @@
-<?php 
+<?php
 //Modulo BASES: Este modulo concentra todas las funcionalidades relacionadas a la gestion y administraión de los datos correspondientes a los diferentes programas que se ejecutan desde la SES
 
 include 'includes/gestionar_socios.inc';
@@ -17,15 +17,17 @@ include 'includes/registrar_pagos_cod_barra.inc';
 include 'includes/generar_cupones.inc';
 include 'includes/adjuntar_foto.inc';
 include 'includes/ingreso_socio.inc';
+include 'includes/generar_plan_pago.inc';
+include 'includes/plan_pago_socio.inc';
 
-function socios_init(){ 
+function socios_init(){
   //drupal_add_js(drupal_get_path('module', 'generico') . '/js/generico.js');
 
-} 
+}
 
-function socios_permission(){   
+function socios_permission(){
 
- 
+
   return array(
   	'acceso a gestionar socios' =>  array(
 		'title' => t('Gestion de socios'),
@@ -83,6 +85,14 @@ function socios_permission(){
     'title' => t('Gestion de socios - Control de Ingreso de Socios'),
     'description' => t('Permisos para acceder al Control de Ingresos de Socios.'),
   ),
+  'acceso a generar plan de pago' =>  array(
+    'title' => t('Gestion de socios - Buscar socio para generar un plan de pago'),
+    'description' => t('Permisos para acceder a buscar un socio para generar un plan de pago.'),
+  ),
+  'acceso a generar plan de pago socio' =>  array(
+    'title' => t('Gestion de socios - Plan de Pago de un socio'),
+    'description' => t('Permisos para acceder al registro de un plan de pago de un socio.'),
+  ),
   );
 }
 
@@ -108,32 +118,32 @@ function socios_menu()
   $items['socios/gestionar_socios'] = array(
     'title' => 'SOCIOS',
     'page callback' => 'drupal_get_form',
-    'page arguments' => array('gestionar_socios_form'), 
-    'access arguments' => array('acceso a gestionar socios'),    
+    'page arguments' => array('gestionar_socios_form'),
+    'access arguments' => array('acceso a gestionar socios'),
     'expanded' => TRUE,
   );//gestionar_socios.inc
 
   $items['socios/datos_socio'] = array(
     'title' => 'SOCIOS',
     'page callback' => 'drupal_get_form',
-    'page arguments' => array('datos_socio_form'), 
-    'access arguments' => array('acceso a datos del socios'),    
+    'page arguments' => array('datos_socio_form'),
+    'access arguments' => array('acceso a datos del socios'),
     'expanded' => TRUE,
   );//gestionar_socios.inc
-  
+
   $items['socios/socio'] = array(
     'title' => 'SOCIO',
     'page callback' => 'drupal_get_form',
-    'page arguments' => array('socio_form'), 
-    'access arguments' => array('acceso a gestionar socio'),    
+    'page arguments' => array('socio_form'),
+    'access arguments' => array('acceso a gestionar socio'),
     'expanded' => TRUE,
   );//socios.inc
 
   $items['/estado_socio'] = array(
     'title' => 'ESTADO DEL SOCIO',
     'page callback' => 'drupal_get_form',
-    'page arguments' => array('estado_socio_form'), 
-    'access arguments' => array('acceso a cambiar estado del socio'),    
+    'page arguments' => array('estado_socio_form'),
+    'access arguments' => array('acceso a cambiar estado del socio'),
     'expanded' => TRUE,
   );//estado_socio.inc
    $items['titular/autocomplete'] = array(
@@ -145,81 +155,95 @@ function socios_menu()
   $items['socios/gestionar_categorias_socio'] = array(
     'title' => 'CATEGORIAS DEL SOCIO',
     'page callback' => 'drupal_get_form',
-    'page arguments' => array('gestionar_categorias_form'), 
-    'access arguments' => array('acceso a gestionar categorias del socio'),    
+    'page arguments' => array('gestionar_categorias_form'),
+    'access arguments' => array('acceso a gestionar categorias del socio'),
     'expanded' => TRUE,
   );//gestionar_categorias_socio.inc
   $items['socios/categoria'] = array(
     'title' => 'CATEGORIA',
     'page callback' => 'drupal_get_form',
-    'page arguments' => array('categoria_form'), 
-    'access arguments' => array('acceso a gestionar una categoria del socio'),    
+    'page arguments' => array('categoria_form'),
+    'access arguments' => array('acceso a gestionar una categoria del socio'),
     'expanded' => TRUE,
   );//categoria.inc
   $items['socios/gestionar_estados_socio'] = array(
     'title' => 'ESTADOS DEL SOCIO',
     'page callback' => 'drupal_get_form',
-    'page arguments' => array('gestionar_estados_socio_form'), 
-    'access arguments' => array('acceso a gestionar estados del socio'),    
+    'page arguments' => array('gestionar_estados_socio_form'),
+    'access arguments' => array('acceso a gestionar estados del socio'),
     'expanded' => TRUE,
   );//gestionar_estados_socio.inc
   $items['socios/estados_socio'] = array(
     'title' => 'ESTADO DE SOCIO',
     'page callback' => 'drupal_get_form',
-    'page arguments' => array('estado_form'), 
-    'access arguments' => array('acceso a gestionar estado de socio'),    
+    'page arguments' => array('estado_form'),
+    'access arguments' => array('acceso a gestionar estado de socio'),
     'expanded' => TRUE,
-  );//estado.inc  
+  );//estado.inc
   $items['socios/gestionar_tipo_grupo_familiar'] = array(
     'title' => 'TIPOS DE GRUPO FAMILIAR',
     'page callback' => 'drupal_get_form',
-    'page arguments' => array('gestionar_tipo_grupo_familiar_form'), 
-    'access arguments' => array('acceso a gestionar tipos de grupo familiar'),    
+    'page arguments' => array('gestionar_tipo_grupo_familiar_form'),
+    'access arguments' => array('acceso a gestionar tipos de grupo familiar'),
     'expanded' => TRUE,
   );//gestionar_tipo_grupo_familiar.inc
   $items['socios/tipo_grupo_familiar'] = array(
     'title' => 'TIPO DE GRUPO FAMILIAR',
     'page callback' => 'drupal_get_form',
-    'page arguments' => array('tipo_grupo_familiar_form'), 
-    'access arguments' => array('acceso a gestionar tipo de grupo familiar'),    
+    'page arguments' => array('tipo_grupo_familiar_form'),
+    'access arguments' => array('acceso a gestionar tipo de grupo familiar'),
     'expanded' => TRUE,
-  );//tipo_grupo_familiar.inc  
+  );//tipo_grupo_familiar.inc
   $items['socios/registrar_pagos_cod_barra'] = array(
     'title' => 'REGISTRAR PAGOS',
     'page callback' => 'drupal_get_form',
-    'page arguments' => array('registrar_pagos_cod_barra_form'), 
-    'access arguments' => array('acceso a registrar pagos por cod barras'),    
+    'page arguments' => array('registrar_pagos_cod_barra_form'),
+    'access arguments' => array('acceso a registrar pagos por cod barras'),
     'expanded' => TRUE,
-  );//registrar_pagos_cod_barra.inc    
+  );//registrar_pagos_cod_barra.inc
   $items['socios/registrar_pago'] = array(
     'title' => 'REGISTRAR PAGOS',
     'page callback' => 'drupal_get_form',
-    'page arguments' => array('registrar_pagos_form'), 
-    'access arguments' => array('acceso a registrar pagos'),    
+    'page arguments' => array('registrar_pagos_form'),
+    'access arguments' => array('acceso a registrar pagos'),
     'expanded' => TRUE,
-  );//registrar_pago.inc    
+  );//registrar_pago.inc
   $items['socios/generar_cupones'] = array(
     'title' => 'REGISTRAR PAGOS',
     'page callback' => 'drupal_get_form',
-    'page arguments' => array('generar_cupones_form'), 
-    'access arguments' => array('acceso a generar cupones'),    
+    'page arguments' => array('generar_cupones_form'),
+    'access arguments' => array('acceso a generar cupones'),
     'expanded' => TRUE,
-  );//generar_cupones.inc 
+  );//generar_cupones.inc
   $items['socios/adjuntar_foto'] = array(
     'title' => 'ADJUNTAR FOTO',
     'page callback' => 'drupal_get_form',
-    'page arguments' => array('adjuntar_foto_form'), 
-    'access arguments' => array('acceso a adjuntar foto'),    
+    'page arguments' => array('adjuntar_foto_form'),
+    'access arguments' => array('acceso a adjuntar foto'),
     'expanded' => TRUE,
-  );//adjuntar_foto.inc    
+  );//adjuntar_foto.inc
   $items['socios/ingreso_socio'] = array(
     'title' => 'CONTROL DE INGRESO',
     'page callback' => 'drupal_get_form',
-    'page arguments' => array('ingreso_socio_form'), 
-    'access arguments' => array('acceso a ingreso socios'),    
+    'page arguments' => array('ingreso_socio_form'),
+    'access arguments' => array('acceso a ingreso socios'),
     'expanded' => TRUE,
-  );//ingreso_socio.inc    
-  
+  );//ingreso_socio.inc
+  $items['socios/plan_pago'] = array(
+    'title' => 'PLAN DE PAGO',
+    'page callback' => 'drupal_get_form',
+    'page arguments' => array('generar_plan_pago_buscar_form'),
+    'access arguments' => array('acceso a generar plan de pago'),
+    'expanded' => TRUE,
+  );//generar_plan_pago.inc
+  $items['socios/plan_pago_socio'] = array(
+    'title' => 'PLAN DE PAGO',
+    'page callback' => 'drupal_get_form',
+    'page arguments' => array('plan_pago_socio_form'),
+    'access arguments' => array('acceso a generar plan de pago de un socio'),
+    'expanded' => TRUE,
+  );//plan_pago_socio.inc
+
   return $items;
 }
 ?>
