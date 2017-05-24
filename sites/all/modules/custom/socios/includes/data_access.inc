@@ -49,28 +49,27 @@ function get_socios($apellidos=NULL, $nombres=NULL, $nro_socio=NULL,$estado=NULL
 	# ejecutamos la consulta
 	$socios = $select->execute();
 
-<<<<<<< HEAD
 	//drupal_set_message('<pre>'.print_r($SELECT, true).'</pre>');
-	return $socios;	
+	return $socios;
 }
 
 //funcion que busca los socios que pertenecen a un grupo familiar
 function get_socios_gf($id_grupo_familiar)
-{	
+{
 	$select = db_select('io_socio', 'soc');
 	$select->join('io_persona', 'per', 'soc.persona_id = per.id_persona');
-	$select->join('io_estado_socio', 'est', 'soc.estado_socio_id = est.id_estado_socio');	
+	$select->join('io_estado_socio', 'est', 'soc.estado_socio_id = est.id_estado_socio');
 	$select->leftJoin('io_categoria_socio', 'cate', 'soc.categoria_socio_id = cate.id_categoria_socio');
 	$select->leftJoin('io_tipo_socio', 'tip', 'soc.tipo_socio_id = tip.id_tipo_socio');
 	$select->leftJoin('io_grupo_familiar_socio', 'gfs', 'soc.id_socio = gfs.socio_id');
 	$select->leftJoin('io_grupo_familiar', 'gf', 'gfs.grupo_familiar_id = gf.id_grupo_familiar');
 	$select->fields('soc', array('id_socio', 'secuencia'));
-	$select->fields('per', array('apellidos', 'nombres', 'tipo_doc', 'nro_doc'));		
-	$select->addField('est', 'nombre', 'estado');	
+	$select->fields('per', array('apellidos', 'nombres', 'tipo_doc', 'nro_doc'));
+	$select->addField('est', 'nombre', 'estado');
 	$select->addField('tip', 'descripcion', 'tipo_socio');
 	$select->addField('tip', 'id_tipo_socio', 'id_tipo_socio');
 	//$select->addField('gf', 'nro_socio_titular', 'nro_socio_titular');
-	
+
 	$select->addField('cate', 'nombre', 'categoria_socio');
 	$select->condition('gf.id_grupo_familiar', $id_grupo_familiar, '=');
 	$select->addExpression('IF(soc.nro_socio IS NULL, gf.nro_socio_titular , soc.nro_socio)', 'nro_socio');
@@ -80,10 +79,7 @@ function get_socios_gf($id_grupo_familiar)
 	//$select->limit($limit);
 	# ejecutamos la consulta
 	$socios = $select->execute();
-	
-=======
 
->>>>>>> ebdb0326c88d33234cf2b726e34978a05b215699
 	//drupal_set_message('<pre>'.print_r($SELECT, true).'</pre>');
 	return $socios;
 }

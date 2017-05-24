@@ -13,7 +13,7 @@
 * Formulario que gestionar socios
 */
 function gestionar_socios_form($form, &$form_state)
-{	
+{
 	$formulario = 'gestionar_socios';
 
 	$form['formulario'] = array(
@@ -33,7 +33,7 @@ function gestionar_socios_form($form, &$form_state)
 		$params = $_SESSION[$formulario]['params'];
 		//drupal_set_message('<pre>'.print_r($params, true).'</pre>');
 		//buscamos los socios
-		$socios = get_socios($params['apellidos'], $params['nombres'], $params['nro_socio'], $params['estado'], $params['tipo_socio'], $params['categoria_socio']);		
+		$socios = get_socios($params['apellidos'], $params['nombres'], $params['nro_socio'], $params['estado'], $params['tipo_socio'], $params['categoria_socio']);
 
 	}
 	else
@@ -42,86 +42,86 @@ function gestionar_socios_form($form, &$form_state)
 		$socios = array();
 	}
 
-	
+
 	$form['gestion_socios']['filtrar'] = array(
 		'#title' => t('FILTRAR SOCIOS'),
 		'#type' => 'fieldset',
-		'#collapsible'=>true, 
+		'#collapsible'=>true,
 		'#collapsed'=>$collapsed,
 	);
 
 	$form['gestion_socios']['filtrar']['filtro_nro_socio'] = array(
 		'#title' => t('NUMERO DE SOCIO'),
-	    '#type' => 'textfield', 
+	    '#type' => 'textfield',
 	    '#default_value'=>(!empty($params['nro_socio']) ? $params['nro_socio'] : ''),
-	    '#disabled'=>false,	    
+	    '#disabled'=>false,
 	);
 
 	$form['gestion_socios']['filtrar']['filtro_nombres'] = array(
 		'#title' => t('NOMBRE'),
-	    '#type' => 'textfield', 
+	    '#type' => 'textfield',
 	    '#default_value'=>(!empty($params['nombres']) ? $params['nombres'] : ''),
-	    '#disabled'=>false,	    
-	);	
+	    '#disabled'=>false,
+	);
 
 	$form['gestion_socios']['filtrar']['filtro_apellidos'] = array(
 		'#title' => t('APELLIDO'),
-	    '#type' => 'textfield', 
+	    '#type' => 'textfield',
 	    '#default_value'=>(!empty($params['apellidos']) ? $params['apellidos'] : ''),
-	    '#disabled'=>false,	    
+	    '#disabled'=>false,
 	);
 
 	$estados_socio = get_estados_socio_select('--TODOS--');
 	$form['gestion_socios']['filtrar']['filtro_estado'] = array(
 		'#title' => t('ESTADO'),
-	    '#type' => 'select', 
+	    '#type' => 'select',
 	    '#options'=>$estados_socio,
-	    '#disabled'=>false,	
+	    '#disabled'=>false,
 	    '#default_value'=>(!empty($params['estado']) ? $params['estado'] : NULL),
 	);
 
 	$categorias_socio = get_categorias_socio_select('--TODOS--');
 	$form['gestion_socios']['filtrar']['filtro_categoria_socio'] = array(
 		'#title' => t('CATEGORIA'),
-	    '#type' => 'select', 
+	    '#type' => 'select',
 	    '#options'=>$categorias_socio,
-	    '#disabled'=>false,	
+	    '#disabled'=>false,
 	    '#default_value'=>(!empty($params['categoria_socio']) ? $params['categoria_socio'] : NULL),
 	);
 
 	$tipos_socio = get_tipos_socio_select('--TODOS--');
 	$form['gestion_socios']['filtrar']['filtro_tipo_socio'] = array(
 		'#title' => t('TIPO DE SOCIO'),
-	    '#type' => 'select', 
+	    '#type' => 'select',
 	    '#options'=>$tipos_socio,
-	    '#disabled'=>false,	
+	    '#disabled'=>false,
 	    '#default_value'=>(!empty($params['tipo_socio']) ? $params['tipo_socio'] : NULL),
 	);
 
 	$form['gestion_socios']['filtrar']['buscar'] = array(
 		'#value' => t('BUSCAR'),
-	    '#type' => 'submit',    
+	    '#type' => 'submit',
 	);
 
 	$form['gestion_socios']['filtrar']['nuevo_socio'] = array(
 		'#value' => t('NEVO SOCIO'),
 	    '#type' => 'submit',
 	    '#limit_validation_errors'=> array(),
-		'#submit'=> array('nuevo_socio_submit'), 
-	);	
+		'#submit'=> array('nuevo_socio_submit'),
+	);
 
-	$header_socios = array(    
+	$header_socios = array(
 		'nro_socio'=>t('NRO. SOCIO'),
 		'apellidos'=>t('APELLIDO'),
 	    'nombres'=>t('NOMBRE'),
-	    'tipo_doc'=>t('TIPO DOC.'), 
+	    'tipo_doc'=>t('TIPO DOC.'),
 	    'nro_doc'=>t('NUMERO DOC.'),
-	    'fecha_ingreso'=>t('FECHA DE INGRESO'), 
+	    'fecha_ingreso'=>t('FECHA DE INGRESO'),
 	    'estado'=>t('ESTADO'),
 	    'categoria_socio'=>t('CAT. O TIPO GRUPO FAMILIAR'),
 	    'tipo_socio'=>t('TIPO DE SOCIO'),
     );
-	
+
 
 	if(empty($socios))
 			$socios = array();
@@ -130,9 +130,9 @@ function gestionar_socios_form($form, &$form_state)
 	$socios_gf = null;
 	$i = 0;
 	//recorremos todos los socios recuperados y generamos el array de opciones
-	
+
 	if(!empty($socios))
-		while ($socio = $socios->fetchObject()) 
+		while ($socio = $socios->fetchObject())
 		{
 			$id_socio = $socio->id_socio;
 			//ver si el socio es miembro de familia y buscar el numero de socio del titular
@@ -148,17 +148,20 @@ function gestionar_socios_form($form, &$form_state)
 				$grupo_familiar = get_grupo_familiar($socio->id_socio);
 				if(isset($grupo_familiar->nombre_tipo_grupo_familiar))
 					$socio->categoria_socio = $grupo_familiar->nombre_tipo_grupo_familiar;
-				//si es titular de familia y se busco por nro de socio me debe traer 
-				if((isset($params['nro_socio']) && !is_null($params['nro_socio']))
+				//si es titular de familia y se busco por nro de socio me debe traer
+				if((isset($params['nro_socio']) && !is_null($params['nro_socio'])))
+				{
+					
+				}
 				//drupal_set_message('<pre>'.print_r($grupo_familiar,true).'</pre>');
 				//$socios_gf = get_socios_gf($socio->id_grupo_familiar);
 				//drupal_set_message('<pre>'.print_r($socios_gf->fetchAll(),true).'</pre>');
 			}
 
-			$fila_socio =  
+			$fila_socio =
 			array(
 				'nro_socio'=> $socio->nro_socio.'/'.$socio->secuencia,
-				'apellidos'=> $socio->apellidos,			    
+				'apellidos'=> $socio->apellidos,
 				'nombres'=> $socio->nombres,
 				'tipo_doc'=> $socio->tipo_doc,
 				'nro_doc'=> $socio->nro_doc,
@@ -168,24 +171,24 @@ function gestionar_socios_form($form, &$form_state)
 				'tipo_socio'=> $socio->tipo_socio,
 				//l('Ver', 'microcreditos/ver_observacion_carpeta', array('query' => array('id' => $carpeta['id_carpeta_personal']))),
 				'id_socio'=> array(
-					'data'=> array( 
-				  		'#type' => 'hidden',               
-							'#name' => '',               
+					'data'=> array(
+				  		'#type' => 'hidden',
+							'#name' => '',
 				  		'#value'=> $id_socio,
-				  	), 
-				),     
+				  	),
+				),
 			);
-				
+
 			$filas_socios[$id_socio] = $fila_socio;
-			$i++;	
-			
+			$i++;
+
 			if(!is_null($socios_gf))
 			{//recorremos los miembros de familia y los agregamos
 
 			}
-		}      
-	
-	$form['socios']['gestion_socios'] = array( 
+		}
+
+	$form['socios']['gestion_socios'] = array(
 		'#type'=>'fieldset',
 		'#title'=>t('SOCIOS'),
 		'#collapsible'=> TRUE,
@@ -206,7 +209,7 @@ function gestionar_socios_form($form, &$form_state)
 		'#markup'=>theme('pager'),
 	);*/
 
-	$form['socios']['gestion_socios']['ver_socio'] = array( 
+	$form['socios']['gestion_socios']['ver_socio'] = array(
 		'#type'=>'submit',
 		'#name'=>'ver_socio',
 		'#value'=>'VER SOCIO',
@@ -218,7 +221,7 @@ function gestionar_socios_form($form, &$form_state)
 		'#type'=>'submit',
 		'#value'=> t('SALIR'),
 	);
-	
+
 	return $form;
 }
 
@@ -229,7 +232,7 @@ function nuevo_socio_submit($form, &$form_state)
 
 function gestionar_socios_form_validate($form, &$form_state)
 {
-	if(empty($form_state['values']['filtro_apellidos']) 
+	if(empty($form_state['values']['filtro_apellidos'])
 	&& empty($form_state['values']['filtro_nombres'])
 	&& empty($form_state['values']['filtro_nro_socio'])
 	&& empty($form_state['values']['filtro_estado'])
@@ -241,10 +244,10 @@ function gestionar_socios_form_validate($form, &$form_state)
 function gestionar_socios_form_submit($form, &$form_state)
 {
 	//drupal_set_message('<pre>'.print_r($form, true).'</pre>');
-	
+
 	$uid = $GLOBALS['user']->uid;
 	$formulario = $form_state['values']['formulario'];
-    try { 
+    try {
     	//creamos un arrray dentro del SESSION para que sea recuperado dentro de params
     	$_SESSION[$formulario]['params']['apellidos'] = (!empty($form_state['values']['filtro_apellidos']) ? strtoupper($form_state['values']['filtro_apellidos']) : NULL);
     	$_SESSION[$formulario]['params']['nombres'] = (!empty($form_state['values']['filtro_nombres']) ? strtoupper($form_state['values']['filtro_nombres']) : NULL);
@@ -255,10 +258,10 @@ function gestionar_socios_form_submit($form, &$form_state)
 
    	$form_state['redirect'] = array('socios/gestionar_socios');
   	}
- 	catch (Exception $e) {  		
+ 	catch (Exception $e) {
   		watchdog_exception('my_type', $e);
   		drupal_set_message('<pre>'. print_r("Error en la trasaccion - Comunicarse con el proveedor de sistemas.".$e, TRUE) .'</pre>');
-	}	
+	}
 }
 
 function ver_socio_form_valdiate($form, &$form_state)
@@ -272,10 +275,10 @@ function ver_socio_form_valdiate($form, &$form_state)
 function ver_socio_form_submit($form, &$form_state)
 {
 	//drupal_set_message('<pre>'.print_r($form_state['values']['listado_socios'], true).'</pre>');
-	
+
 	$uid = $GLOBALS['user']->uid;
 	$formulario = $form_state['values']['formulario'];
-    try { 
+    try {
     	//creamos un arrray dentro del SESSION para que sea recuperado dentro de params
     	$id_socio_seleccionado = (!empty($form_state['values']['listado_socios']) ? $form_state['values']['listado_socios'] : NULL);
 
@@ -286,12 +289,12 @@ function ver_socio_form_submit($form, &$form_state)
     	//unset($_SESSION[$formulario]['params']);
     	$form_state['redirect'] = array('socios/datos_socio',array('query' => array('id'=>$id_socio_seleccionado)));
 
-   		
+
   	}
- 	catch (Exception $e) {  		
+ 	catch (Exception $e) {
   		watchdog_exception('my_type', $e);
   		drupal_set_message('<pre>'. print_r("Error en la trasaccion - Comunicarse con el proveedor de sistemas.".$e, TRUE) .'</pre>');
-	}	
+	}
 }
 
 
