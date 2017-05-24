@@ -127,7 +127,7 @@ function gestionar_socios_form($form, &$form_state)
 			$socios = array();
 	//se genera un array filas_socios que tendra como elementos a cada fila generada por socio
 	$filas_socios =array();
-
+	$socios_gf = null;
 	$i = 0;
 	//recorremos todos los socios recuperados y generamos el array de opciones
 	
@@ -148,30 +148,41 @@ function gestionar_socios_form($form, &$form_state)
 				$grupo_familiar = get_grupo_familiar($socio->id_socio);
 				if(isset($grupo_familiar->nombre_tipo_grupo_familiar))
 					$socio->categoria_socio = $grupo_familiar->nombre_tipo_grupo_familiar;
+				//si es titular de familia y se busco por nro de socio me debe traer 
+				if((isset($params['nro_socio']) && !is_null($params['nro_socio']))
+				//drupal_set_message('<pre>'.print_r($grupo_familiar,true).'</pre>');
+				//$socios_gf = get_socios_gf($socio->id_grupo_familiar);
+				//drupal_set_message('<pre>'.print_r($socios_gf->fetchAll(),true).'</pre>');
 			}
 
 			$fila_socio =  
-			  array(
-			    'nro_socio'=> $socio->nro_socio.'/'.$socio->secuencia,
-			    'apellidos'=> $socio->apellidos,			    
-			    'nombres'=> $socio->nombres,
-			    'tipo_doc'=> $socio->tipo_doc,
-			    'nro_doc'=> $socio->nro_doc,
-			    'fecha_ingreso'=> $socio->fecha_ingreso,
-			    'estado'=> $socio->estado,
-			    'categoria_socio'=> $socio->categoria_socio,
-			    'tipo_socio'=> $socio->tipo_socio,
-			    //l('Ver', 'microcreditos/ver_observacion_carpeta', array('query' => array('id' => $carpeta['id_carpeta_personal']))),
-			    'id_socio'=> array(
-			    	'data'=> array( 
-			      		'#type' => 'hidden',               
-		      			'#name' => '',               
-			      		'#value'=> $id_socio,
-			      	), 
-		    	),     
-			  ); 
+			array(
+				'nro_socio'=> $socio->nro_socio.'/'.$socio->secuencia,
+				'apellidos'=> $socio->apellidos,			    
+				'nombres'=> $socio->nombres,
+				'tipo_doc'=> $socio->tipo_doc,
+				'nro_doc'=> $socio->nro_doc,
+				'fecha_ingreso'=> $socio->fecha_ingreso,
+				'estado'=> $socio->estado,
+				'categoria_socio'=> $socio->categoria_socio,
+				'tipo_socio'=> $socio->tipo_socio,
+				//l('Ver', 'microcreditos/ver_observacion_carpeta', array('query' => array('id' => $carpeta['id_carpeta_personal']))),
+				'id_socio'=> array(
+					'data'=> array( 
+				  		'#type' => 'hidden',               
+							'#name' => '',               
+				  		'#value'=> $id_socio,
+				  	), 
+				),     
+			);
+				
 			$filas_socios[$id_socio] = $fila_socio;
-			$i++;
+			$i++;	
+			
+			if(!is_null($socios_gf))
+			{//recorremos los miembros de familia y los agregamos
+
+			}
 		}      
 	
 	$form['socios']['gestion_socios'] = array( 
