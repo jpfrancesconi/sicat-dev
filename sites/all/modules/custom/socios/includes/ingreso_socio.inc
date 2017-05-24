@@ -23,25 +23,147 @@ function ingreso_socio_form($form, &$form_state)
 
 	$form['buscar_socio'] = array( 
 		'#type'=>'fieldset',
-		'#title'=>'SOCIO',
+		'#title'=>'BUSCAR POR NUMERO DE SOCIO',
 	);
 
 	$form['buscar_socio']['nro_socio'] = array( 
 		'#type'=>'textfield',
 		'#title'=>'NUMERO SOCIO',
-		'#ajax' => array(       
-			'wrapper' => 'datos-socio',
-			'callback' => 'datos_socio_ajax_callback',
-			'method' => 'replace',
-		),
 	);
 
+	$form['buscar_socio']['apellidos'] = array( 
+		'#type'=>'textfield',
+		'#title'=>'APELLIDOS',
+	);
 
+	$form['buscar_socio']['nombres'] = array( 
+		'#type'=>'textfield',
+		'#title'=>'NOMBRES',
+	);
+
+	$form['buscar_socio']['buscar'] = array( 
+		'#type'=>'submit',
+		'#value'=>'BUSCAR',
+	);	
 
 	$form['socios']['inicio']= array(    
 		    	'#markup' => '<div id="datos-socio">',
 	);
 
+	if((isset($_GET['ns']) && !is_null($_GET['ns'])))
+	{
+		$nro_socio = $_GET['ns']; 
+		$form['buscar_socio']['nro_socio']['#default_value'] = $nro_socio;
+	}
+	else
+	{
+		$nro_socio = NULL;
+	}
+	if((isset($_GET['nom']) && !is_null($_GET['nom'])))
+	{
+		$nombres = $_GET['nom']; 
+		$form['buscar_socio']['nombres']['#default_value'] = $nombres;
+	}
+	else
+	{
+		$nombres = NULL;
+	}
+	if((isset($_GET['ap']) && !is_null($_GET['ap'])))
+	{
+		$apellidos = $_GET['ap']; 
+		$form['buscar_socio']['apellidos']['#default_value'] = $apellidos;
+	}
+	else
+	{
+		$apellidos = NULL;
+	}
+
+	if(!is_null($apellidos) || !is_null($nombres) || !is_null($nro_socio))
+	{
+		//buscamos 
+		$socios = get_socios($apellidos, $nombres,$nro_socio,NULL,NULL,NULL);
+
+		$header_socios = array(    
+		'nro_socio'=>t('NRO. SOCIO'),
+		'apellidos'=>t('APELLIDO'),
+	    'nombres'=>t('NOMBRE'),
+	    'tipo_doc'=>t('TIPO DOC.'), 
+	    'nro_doc'=>t('NUMERO DOC.'),
+	    'fecha_ingreso'=>t('FECHA DE INGRESO'), 
+	    'estado'=>t('ESTADO'),
+	    'categoria_socio'=>t('CAT. O TIPO GRUPO FAMILIAR'),
+	    'tipo_socio'=>t('TIPO DE SOCIO'),
+		);
+
+
+		if(empty($socios))
+				$socios = array();
+		//se genera un array filas_socios que tendra como elementos a cada fila generada por socio
+		$filas_socios =array();
+
+		$i = 0;
+		//recorremos todos los socios recuperados y generamos el array de opciones
+
+		if(!empty($socios) && count($socios) > 1)
+			while ($socio = $socios->fetchObject()) 
+			{
+				$id_socio = $socio->id_socio;
+				//ver si el socio es miembro de familia y buscar el numero de socio del titular
+				if($socio->id_tipo_socio == 2)
+				{
+					$grupo_familiar = get_grupo_familiar($socio->id_socio);
+					$socio->nro_socio = $grupo_familiar->nro_socio_titular;
+					if(isset($grupo_familiar->nombre_tipo_grupo_familiar))
+						$socio->categoria_socio = $grupo_familiar->nombre_tipo_grupo_familiar;
+				}
+				else if($socio->id_tipo_socio == 3)
+				{
+					$grupo_familiar = get_grupo_familiar($socio->id_socio);
+					if(isset($grupo_familiar->nombre_tipo_grupo_familiar))
+						$socio->categoria_socio = $grupo_familiar->nombre_tipo_grupo_familiar;
+				}
+
+				$fila_socio =  
+				  array(
+				    'nro_socio'=> $socio->nro_socio.'/'.$socio->secuencia,
+				    'apellidos'=> $socio->apellidos,			    
+				    'nombres'=> $socio->nombres,
+				    'tipo_doc'=> $socio->tipo_doc,
+				    'nro_doc'=> $socio->nro_doc,
+				    'fecha_ingreso'=> $socio->fecha_ingreso,
+				    'estado'=> $socio->estado,
+				    'categoria_socio'=> $socio->categoria_socio,
+				    'tipo_socio'=> $socio->tipo_socio,
+				    //l('Ver', 'microcreditos/ver_observacion_carpeta', array('query' => array('id' => $carpeta['id_carpeta_personal']))),
+				    'id_socio'=> array(
+				    	'data'=> array( 
+				      		'#type' => 'hidden',               
+			      			'#name' => '',               
+				      		'#value'=> $id_socio,
+				      	), 
+			    	),     
+				  ); 
+				$filas_socios[$id_socio] = $fila_socio;
+				$i++;
+			}      
+
+		$form['buscar_socio_ape_nom']['resultado_socios'] = array( 
+			'#type'=>'fieldset',
+			'#title'=>t('SOCIOS'),
+			'#collapsible'=> TRUE,
+		);
+
+		$form['buscar_socio_ape_nom']['resultado_socios']['listado_socios'] = array(
+			'#type' => 'tableselect',
+			'#header' => $header_socios,
+			'#options' => $filas_socios,
+			'#multiple'=>FALSE,
+			'#empty' => 'No existen socios.',
+			'#prefix'=>'<div id="listado-socios">',
+			'#suffix'=>'</div>',
+			'#description'=>t('Seleccione socio.')
+		);
+	}
 
 	if(isset($form_state['values']['nro_socio']) && !empty($form_state['values']['nro_socio']))
 	{		
@@ -271,7 +393,25 @@ function ingreso_socio_form($form, &$form_state)
 
 function ingreso_socio_form_submit($form, &$form_state)
 {
-	
+	try{
+		if($form_state['values']['op'] == 'BUSCAR')
+		{
+			$apellidos = $form_state['values']['apellidos'];
+			$nombres = $form_state['values']['nombres'];
+
+			$form_state['redirect'] = array('socios/ingreso_socio',array('query' => array('nom'=>$nombres, 'ap'=>$apellidos)));
+		}
+		if($form_state['values']['op'] == 'VER SOCIO')
+		{
+			$id_socio_seleccionado = (!empty($form_state['values']['listado_socios']) ? $form_state['values']['listado_socios'] : NULL);
+
+			$form_state['redirect'] = array('socios/ingreso_socio',array('query' => array('id'=>$id_socio_seleccionado)));	
+		}
+	}
+ 	catch (Exception $e) {  		
+  		watchdog_exception('ingreso_socio', $e);
+  		drupal_set_message('<pre>'. print_r("Error en la trasaccion - Comunicarse con el proveedor de sistemas.", TRUE) .'</pre>');
+	}
 }
 
 function datos_socio_ajax_callback($form, &$form_state) {
