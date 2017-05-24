@@ -562,7 +562,7 @@ function get_grupo_familiar($id_socio)
 								INNER JOIN io_tipo_grupo_familiar gft ON gft.id_tipo_grupo_familiar = gf.tipo_grupo_familiar_id
 								WHERE soc.id_socio =:id_socio', array(':id_socio' => $id_socio ))->fetchObject();
 
-   drupal_set_message('<pre>'.print_r($grupo_familiar, true).'</pre>');
+   //drupal_set_message('<pre>'.print_r($grupo_familiar, true).'</pre>');
 
 	return $grupo_familiar;
 }
