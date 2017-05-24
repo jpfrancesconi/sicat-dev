@@ -21,7 +21,7 @@ function registrar_pagos_form($form, &$form_state)
 	$form['#attached']['js'] = array(
 		drupal_get_path('module', 'socios') . '/js/anular_pagos.js',
 	);
-	
+
 	/*$form['#attached']['js'] = array(
 		drupal_get_path('module', 'generico') . '/js/imprimir.js',
 	);*/
@@ -31,28 +31,30 @@ function registrar_pagos_form($form, &$form_state)
 
 	$disabled = false;
 
-	$form['pago'] = array( 
+	$form['pago'] = array(
 		'#type'=>'fieldset',
 		'#title'=>'REGISTRO DE PAGO',
+		'#collapsible'=>true,
+		'#collapsed'=>false
 	);
 
-	$form['pago']['f_nro_socio'] = array( 
+	$form['pago']['f_nro_socio'] = array(
 		'#type'=>'textfield',
-		'#title'=>'NUMERO DE SOCIO',			
+		'#title'=>'NUMERO DE SOCIO',
 	);
 
-	$form['pago']['f_tipo_doc'] = array( 
+	$form['pago']['f_tipo_doc'] = array(
 		'#type'=>'select',
-		'#title'=>'TIPO DE DOCUMENTO',			
+		'#title'=>'TIPO DE DOCUMENTO',
 		'#options' => array('DNI'=>'DNI','LC'=>'LC','LE'=>'LE','DNI EXT.'=>'DNI EXT.'),
 	);
 
-	$form['pago']['f_nro_doc'] = array( 
+	$form['pago']['f_nro_doc'] = array(
 		'#type'=>'textfield',
-		'#title'=>'NUMERO DE DOCUMENTO',			
+		'#title'=>'NUMERO DE DOCUMENTO',
 	);
-	
-	$form['pago']['buscar'] = array( 
+
+	$form['pago']['buscar'] = array(
 		'#type'=>'submit',
 		'#name'=>'buscar_pago',
 		'#value'=>'BUSCAR',
@@ -68,11 +70,13 @@ function registrar_pagos_form($form, &$form_state)
 			'#value'=>$_GET['ns']
 		);
 		$form['pago']['f_nro_socio']['#default_value'] = $_GET['ns'];
+		//hacemos el fieldset quedue colapsado
+		$form['pago']['#collapsed'] = true;
 		//buscamos el socio
 		$socio = get_socio_por_nro_socio($_GET['ns']);
 	}
 	else if(isset($_GET['td'])&&isset($_GET['nd']))
-	{ 
+	{
 		$form['tipo_doc'] = array(
 			'#type'=>'hidden',
 			'#value'=>$_GET['td']
@@ -82,16 +86,16 @@ function registrar_pagos_form($form, &$form_state)
 			'#type'=>'hidden',
 			'#value'=>$_GET['nd']
 		);
-
+		$form['pago']['#collapsed'] = true;
 		$form['pago']['f_nro_doc']['#default_value'] = $_GET['nd'];
 		$form['pago']['f_tipo_doc']['#default_value'] = $_GET['td'];
 		//buscamos el socio
 		$socio = get_socio_por_tipo_nro_doc($_GET['td'], $_GET['nd']);
 	}
-	
-	//si se encontro el socio buscado se mustran los datos y lo que tiene por pagar	
+
+	//si se encontro el socio buscado se mustran los datos y lo que tiene por pagar
     if(isset($socio) && !empty($socio))
-    {    	
+    {
     	//creamos un fieldset que contiene los datos del socio
     	$form['datos_socio'] = array(
     		'#type'=>'fieldset',
@@ -122,14 +126,14 @@ function registrar_pagos_form($form, &$form_state)
 			}
 
 			//buscamos los datos del socio y armamamos un string con el html necesario
-			$form['datos_socio']['grupo_familar_socio'] = array( 
-    		'#markup' =>'<div id="rp-datos-socio-gf">    					
+			$form['datos_socio']['grupo_familar_socio'] = array(
+    		'#markup' =>'<div id="rp-datos-socio-gf">
     						<div class="rp-gf" id="rp-tipo-gf"><h2>TIPO DE GRUPO FAMILIAR: </h2></div>
-    						<div class="rp-gf" id="rp-nombre-tipo-gf">'.$grupo_familiar->nombre_tipo_grupo_familiar.'</div>    					
+    						<div class="rp-gf" id="rp-nombre-tipo-gf">'.$grupo_familiar->nombre_tipo_grupo_familiar.'</div>
     					</div>',
     		);
 
-			$form['datos_socio']['titular'] = array( 
+			$form['datos_socio']['titular'] = array(
     		'#markup' =>'<div id="rp-datos-socio-tit">
     						<div class="rp-socio" id="cabecera-socio-titular"><h2>DATOS DEL TITULAR</h2></div>
     						<div class="rp-socio" id="rp-nro-socio"><strong>NUMERO DE SOCIO: </strong>'.$socio_titular_familia->nro_socio.'/'.$socio_titular_familia->secuencia.'</div>
@@ -141,7 +145,7 @@ function registrar_pagos_form($form, &$form_state)
     						</div>',
     		);
 
-			$form['datos_socio']['socio'] = array( 
+			$form['datos_socio']['socio'] = array(
     		'#markup' =>'<div id="rp-datos-socio-mf">
     						<div class="rp-socio" id="cabecera-socio"><h2>DATOS DEL SOCIO MIEMBRO DE FAMILIA</h2></div>
     						<div class="rp-socio" id="rp-nro-socio"><strong>NUMERO DE SOCIO: </strong>'.$socio_titular_familia->nro_socio.'/'.$socio->secuencia.'</div>
@@ -152,7 +156,7 @@ function registrar_pagos_form($form, &$form_state)
     						</div>',
     		);
 
-    		
+
 			//se buscan los pagos del socio con los parametros:
 			//id_socio = id del socio
 			//mes = null
@@ -160,9 +164,9 @@ function registrar_pagos_form($form, &$form_state)
 			//pagado = 0
 			//refinanciado = 0
 			//anulado = 0
-			$cta_cte = get_pago_por_id_socio($socio_titular_familia->id_socio, null, null, 0, 0, 0);	
-			//guardamos el id del estado del socio y el tipo de grupo familiar 
-			$estado_socio_id = $socio_titular_familia->estado_socio_id;	
+			$cta_cte = get_pago_por_id_socio($socio_titular_familia->id_socio, null, null, 0, 0, 0);
+			//guardamos el id del estado del socio y el tipo de grupo familiar
+			$estado_socio_id = $socio_titular_familia->estado_socio_id;
 			$tipo_grupo_familiar = $grupo_familiar->tipo_grupo_familiar_id;
 		}
 		else
@@ -182,7 +186,7 @@ function registrar_pagos_form($form, &$form_state)
 				$forma_pago = $forma_pago.'<div class="rp-socio" id="rp-forma-pago"><strong>FORMA DE PAGO: </strong>'.$socio->forma_pago_nombre.'</div>';
 			}
 
-			$form['datos_socio']['socio'] = array( 
+			$form['datos_socio']['socio'] = array(
     		'#markup' =>'<div id="rp-datos-socio">
     						<div class="rp-socio" id="rp-nro-socio"><strong>NUMERO DE SOCIO: </strong>'.$socio->nro_socio.'/'.$socio->secuencia.'</div>
     						<div class="rp-socio" id="rp-apellidos"><strong>APELLIDOS: </strong>'.$socio->apellidos.'</div>
@@ -202,17 +206,17 @@ function registrar_pagos_form($form, &$form_state)
 			//anulado = 0
 			$cta_cte = get_pago_por_id_socio($socio->id_socio, null, null, 0, 0, 0);
 
-			//guardamos el id del socio y la categoria del socio 
+			//guardamos el id del socio y la categoria del socio
 			$estado_socio_id = $socio->estado_socio_id;
 			$categoria = $socio->categoria_socio_id;
 		}
-		
+
 		//buscamos el tipo de estado de socio para determinar si es baja o no
 		$tipo_estado = get_tipo_estado($estado_socio_id);
-	    //si estipo baja se debe actualizar el valor de los conceptos y cambiar el encabezado 
+	    //si estipo baja se debe actualizar el valor de los conceptos y cambiar el encabezado
 
 		//drupal_set_message('<pre>'.print_r($cta_cte, true).'</pre>');
-		
+
 		$form['datos_pago'] = array(
 				'#title' => t('DATOS DE CUENTA CORRIENTE'),
 				'#type' => 'fieldset',
@@ -220,18 +224,18 @@ function registrar_pagos_form($form, &$form_state)
 				'#suffix'=>'</div>',
 		);
 
-		$header = 
-		array(    
-        'fecha_emision' => t('FECHA DE EMISION'), 
-        'mes' => array('data'=>t('MES')), 
-        'anio' => array('data'=>t('AÑO')), 
-        'concepto' => array('data'=>t('CONCEPTO')),        
+		$header =
+		array(
+        'fecha_emision' => t('FECHA DE EMISION'),
+        'mes' => array('data'=>t('MES')),
+        'anio' => array('data'=>t('AÑO')),
+        'concepto' => array('data'=>t('CONCEPTO')),
         'valor' =>($tipo_estado == 1 ? array('data'=>t('VALOR ACTUALIZADO')) : array('data'=>t('VALOR'))),
         'pagado' => array('data'=>t('PAGADO')),
         'fecha_pago' => array('data'=>t('FECHA DE PAGO')),
         'anulado' => array('data'=>t('ANULADO')),
         );
-  
+
 		$opciones = array();
 		foreach ($cta_cte as $item_cta_cte) {
 			$id_cta_cte_item = $item_cta_cte->id_cta_cte_item;
@@ -239,7 +243,7 @@ function registrar_pagos_form($form, &$form_state)
 			if($item_cta_cte->pagado == "SI")
 		  		$color = "green";
 		  	else
-		  		$color = "red";      
+		  		$color = "red";
 
 		  	if($item_cta_cte->anulado == "SI")
 		  		$color_anulado = "green";
@@ -252,7 +256,7 @@ function registrar_pagos_form($form, &$form_state)
 		  		//por ahora solo se busca el valor para el concepto cuota social
 		  		if($item_cta_cte->id_concepto == 1)
 		  		{
-		  			//vemos si es un grupo familiar o un socio unico. 
+		  			//vemos si es un grupo familiar o un socio unico.
 		  			//si es grupo familiar el valor se calcula buscando por tipo de grupo familiar
 		  			if(isset($tipo_grupo_familiar))
 		  			{
@@ -263,30 +267,30 @@ function registrar_pagos_form($form, &$form_state)
 		  				$valor = importe_cuota_su($categoria);
 		  			}
 		  		}
-		  	} 
+		  	}
 
-			$opcion =  
+			$opcion =
 			  array(
 			    'fecha_emision'=> $item_cta_cte->fecha_emision,
 			    'mes'=>$item_cta_cte->mes,
-			    'anio'=>$item_cta_cte->anio,    
+			    'anio'=>$item_cta_cte->anio,
 			    'concepto'=>$item_cta_cte->concepto,
 			    'valor'=>($tipo_estado == 1 ? $valor : $item_cta_cte->valor),
-			    'pagado'=>array('data'=>'<div style="color:'.$color.';"><strong>'.$item_cta_cte->pagado.'</strong></div>'),	
+			    'pagado'=>array('data'=>'<div style="color:'.$color.';"><strong>'.$item_cta_cte->pagado.'</strong></div>'),
 			    'fecha_pago'=>$item_cta_cte->fecha_pago,
 			    'anulado'=>array('data'=>'<div style="color:'.$color_anulado.';"><strong>'.$item_cta_cte->anulado.'</strong></div>'),
 			    'id_cta_cte_item'=> array(
-				    'data'=> array( 
-				      '#type' => 'hidden',               
-				      '#name' => 'id_alumno',               
+				    'data'=> array(
+				      '#type' => 'hidden',
+				      '#name' => 'id_alumno',
 				      '#value'=> $id_cta_cte_item,
-				      ), 
-			    ),     
-			); 
+				      ),
+			    ),
+			);
 			$opciones[$id_cta_cte_item] = $opcion;
 		}
-		      
- 		
+
+
  		//se dispone de un select de cobrador para seleccionar el cobrador que corresponde el pago
  		$cobradores = get_cobradores_club_select(true);
 		$form['datos_pago']['personal'] = array(
@@ -303,7 +307,7 @@ function registrar_pagos_form($form, &$form_state)
 	        '#empty' => 'No pagos pendientes para el socio.',
 	        '#prefix'=>'<div id="listado-pagos-socio">',
 	        '#suffix'=>'</div>',
-	       
+
 	      );
 
 		$form['datos_pago']['aceptar'] = array(
@@ -315,7 +319,7 @@ function registrar_pagos_form($form, &$form_state)
 
 		/*$form['datos_pago']['imprimir'] = array(
 			'#markup'=>'<div id="imprimir"><a href="#" onclick="PrintElem(\'listado-pagos-socio\')">IMPRIMIR</a></div>',
-		);*/		
+		);*/
 
 		if(es_usr_secretaria_control($roles))
 		{
@@ -323,9 +327,9 @@ function registrar_pagos_form($form, &$form_state)
 				'#type'=>'submit',
 				'#value'=>'ANULAR PAGOS',
 				'#executes_submit_callback'=>false,
-			);	
+			);
 		}
-		
+
 
 		$form['datos_pago']['total'] = array(
 			'#type'=>'textfield',
@@ -336,7 +340,7 @@ function registrar_pagos_form($form, &$form_state)
 			'#size'=>5,
 		);
 
-		$form['datos_pago']['anulacion'] = array(   
+		$form['datos_pago']['anulacion'] = array(
 			'#prefix' => '<div id=panel-anular-pago-div>',
 			'#type'=>'fieldset',
 			'#title'=>'ANULACION DE PAGO GENERADO',
@@ -366,7 +370,7 @@ function registrar_pagos_form($form, &$form_state)
 		);
 
     }
-    //sino se mustra un mensaje 
+    //sino se mustra un mensaje
     else if(isset($_GET['ns']) || isset($_GET['nd']))
     {
     	$form['socio_no_encontrado'] = array(
@@ -375,7 +379,7 @@ function registrar_pagos_form($form, &$form_state)
     					</div>'
     	);
     }
-	
+
 	return $form;
 }
 
@@ -387,7 +391,7 @@ function buscar_pago_validate($form, &$form_state)
     if(!empty($form_state['values']['f_nro_socio']) && !is_numeric($form_state['values']['f_nro_socio'])){
       form_set_error('f_nro_socio', 'El campo NUMERO DE SOCIO es incorrecto - Solo puede contener números');
     }
-    
+
 }
 
 function buscar_pago_submit($form, &$form_state)
@@ -398,7 +402,7 @@ function buscar_pago_submit($form, &$form_state)
 
 	if(isset($nro_socio) && !empty($nro_socio))
 	{
-        $form_state['redirect'] = array('socios/registrar_pago',array('query' => array('ns'=>$nro_socio)));	
+        $form_state['redirect'] = array('socios/registrar_pago',array('query' => array('ns'=>$nro_socio)));
 
 	}
 	else if(isset($tipo_doc)&& !empty($tipo_doc) && isset($nro_doc) && !empty($nro_doc))
@@ -415,25 +419,25 @@ function registrar_pagos_form_validate($form, &$form_state)
 	foreach ($form_state['values']['listado_pago'] as $pago) {
 		$suma_seleccion = $suma_seleccion+$pago;
 	}
-	
+
 	if($suma_seleccion == 0)
     	form_set_error('listado_pago', 'No se ha seleccionado ningún item - Seleccione al menos uno para realizar la acción requerida.');
 
     if($form_state['values']['personal'] == 0)
     	form_set_error('personal', 'COBRADOR es obligatorio.');
-    
+
 }
 
 function registrar_pagos_form_submit($form, &$form_state)
 {
-	$uid = $GLOBALS['user']->uid;		
+	$uid = $GLOBALS['user']->uid;
 	$fecha_pago = date('Y').'-'.date('m').'-'.date('d');
 	//drupal_set_message('<pre>'.print_r($form_state['values'], true).'</pre>');
 	$transaction = db_transaction();
 	try
 	{
-		//buscamos el cobrador seleccionado 
-		$cobro_id = $form_state['values']['personal']; 
+		//buscamos el cobrador seleccionado
+		$cobro_id = $form_state['values']['personal'];
 		$_SESSION['registrar_pago']['personal_id'] = $cobro_id;
 		//recorremos el listado mientras no sea 0
 		$listado_pago = $form_state['values']['listado_pago'];
@@ -443,16 +447,16 @@ function registrar_pagos_form_submit($form, &$form_state)
 
 			db_update('io_cta_cte_item')
 			->fields(array( 'pagado'=>1,
-				'fecha_pago'=>$fecha_pago,			
-				'cobro_id'=>$cobro_id,	
+				'fecha_pago'=>$fecha_pago,
+				'cobro_id'=>$cobro_id,
 				'usuario_mod'=>$uid,
 			))
 			->condition('id_cta_cte_item',$item,'=')
 			->execute();
-			$mensaje = 'SE REGISTRO CORRECTAMENTE EL PAGO';		
+			$mensaje = 'SE REGISTRO CORRECTAMENTE EL PAGO';
 
 			drupal_set_message($mensaje);
-			$form_state['redirect'] = array('socios/registrar_pago');	
+			$form_state['redirect'] = array('socios/registrar_pago');
 
 		}
 
@@ -463,7 +467,7 @@ function registrar_pagos_form_submit($form, &$form_state)
   		watchdog_exception('pago', $e);
   		drupal_set_message('<pre>'. print_r("Error en la trasaccion - Comunicarse con el proveedor de sistemas.".$e, TRUE) .'</pre>');
 	}
-	
+
 }
 
 function aceptar_anulacion_form_validate($form, &$form_state)
@@ -482,12 +486,12 @@ function aceptar_anulacion_form_validate($form, &$form_state)
     {
     	form_set_error('motivo_anulacion', 'No se ha selecionado ningún motivo de aulación - Seleccione al menos uno para completar la anulación');
     }
-    
+
 }
 
 function aceptar_anulacion_form_submit($form, &$form_state)
 {
-	$uid = $GLOBALS['user']->uid;		
+	$uid = $GLOBALS['user']->uid;
 	$fecha_anulado = date('Y').'-'.date('m').'-'.date('d');
 	$motivo_anulacion = $form_state['values']['motivo_anulacion'];
 	//drupal_set_message('<pre>'.print_r($form_state['values'], true).'</pre>');
@@ -503,15 +507,15 @@ function aceptar_anulacion_form_submit($form, &$form_state)
 			db_update('io_cta_cte_item')
 			->fields(array( 'anulado'=>1,
 				'fecha_anulado'=>$fecha_anulado,
-				'motivo_anulacion'=>$motivo_anulacion,				
+				'motivo_anulacion'=>$motivo_anulacion,
 				'usuario_mod'=>$uid,
 			))
 			->condition('id_cta_cte_item',$item,'=')
 			->execute();
-			$mensaje = 'SE REGISTRO CORRECTAMENTE LA ANULACION DEL PAGO';		
+			$mensaje = 'SE REGISTRO CORRECTAMENTE LA ANULACION DEL PAGO';
 
 			drupal_set_message($mensaje);
-			$form_state['redirect'] = array('socios/registrar_pago');	
+			$form_state['redirect'] = array('socios/registrar_pago');
 
 		}
 
@@ -522,7 +526,7 @@ function aceptar_anulacion_form_submit($form, &$form_state)
   		watchdog_exception('pago', $e);
   		drupal_set_message('<pre>'. print_r("Error en la trasaccion - Comunicarse con el proveedor de sistemas.".$e, TRUE) .'</pre>');
 	}
-	
+
 }
 
 function ajax_anular_callback($form, &$form_state)
