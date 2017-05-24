@@ -19,6 +19,11 @@ function plan_pago_socio_form($form, &$form_state)
 		drupal_get_path('module', 'socios') . '/css/registrar_pagos.css',
 	);
 
+  $form['#attached']['js'] = array(
+		drupal_get_path('module', 'generico') . '/js/imprimir.js',
+    drupal_get_path('module', 'socios') . '/js/plan_pago_socio.js',
+	);
+
   //seteamos el lugar al que se debe retrnar y los parametros
   if(strpos($_SERVER['HTTP_REFERER'], 'plan_pago'))
 	{
@@ -41,27 +46,59 @@ function plan_pago_socio_form($form, &$form_state)
     $socio = get_socio_por_id($id_socio);
     //buscamos la deuda del socio
     $deuda = consultar_deuda($id_socio, $socio->tipo_socio_id);
+
     //guardamos el array de la deuda para usarlo luego en el submit del formualario
     $_SESSION['deuda'] = $deuda;
     $_SESSION['socio'] = $socio;
+
+    //generamos un item hidden con los datos de la deuda para imprimir
+    $meses = array("Enero", "Febrero", "Marzo", "Abril", "Mayo", "Junio", "Julio", "Agosto", "Septiembre", "Octumbre", "Noviembre", "Diciembre");
+    $texto_mes_anio="";
+    foreach ($deuda as $item_deuda) {
+      $texto_mes_anio=$texto_mes_anio.$meses[$item_deuda->mes-1].' de '.$item_deuda->anio.', ';
+    }
+    //el siguiente valor oculto se usa en la vista de impresion
+    $form['texto_mes_anio'] = array(
+      '#type'=>'hidden',
+      '#value'=>$texto_mes_anio,
+      '#attributes'=>array('id'=>array('texto-mes-anio'))
+    );
+    //el siguiente valor oculto se usa en la vista de impresion
+    $form['tipo_socio'] = array(
+      '#type'=>'hidden',
+      '#value'=>$socio->tipo_socio_id,
+      '#attributes'=>array('id'=>array('tipo-socio-id'))
+    );
+
+
+    //revisamos la categoria y tipo de socio
+    if($socio->tipo_socio_id == 1){//si el socio es socio unico mostramos su categoria
+      $categoria_tipo_grupo_familiar = '<div class="rp-socio" id="rp-categoria"><strong>CATEGORIA: </strong><span id="valor-categoria">'.$socio->categoria.'</span></div>';
+    }
+    else if($socio->tipo_socio_id == 3) {//si el socio es socio titular de familia mostramos el tipo de grupo familiar
+      $grupo_familiar = get_grupo_familiar($socio->id_socio);
+      $categoria_tipo_grupo_familiar = '<div class="rp-socio" id="rp-categoria"><strong>TIPO DE GRUPO FAMILIAR: </strong><span id="valor-categoria">'.$grupo_familiar->nombre_tipo_grupo_familiar.'</span></div>';
+    }
+
     //creamos un fieldset que contendra al Formulario
     $form['plan_pago'] = array(
       '#type'=>'fieldset',
       '#title'=>'PLAN DE PAGO PARA EL SOCIO'
     );
-
+    //mostramos los datos del socio
     $form['plan_pago']['datos_socio']['socio'] = array(
       '#markup' =>'
       <div id="rp-datos-socio">
-      <div class="rp-socio" id="rp-nro-socio"><strong>NUMERO DE SOCIO: </strong>'.$socio->nro_socio.'/'.$socio->secuencia.'</div>
-      <div class="rp-socio" id="rp-apellidos"><strong>APELLIDOS: </strong>'.$socio->apellidos.'</div>
-      <div class="rp-socio" id="rp-nombres"><strong>NOMBRES: </strong>'.$socio->nombres.'</div>
+      <div class="rp-socio" id="rp-nro-socio"><strong>NUMERO DE SOCIO: </strong><span id="valor-nro-socio">'.$socio->nro_socio.'</span>/'.$socio->secuencia.'</div>
+      <div class="rp-socio" id="rp-apellidos"><strong>APELLIDOS: </strong><span id="valor-nro-apellidos">'.$socio->apellidos.'</span></div>
+      <div class="rp-socio" id="rp-nombres"><strong>NOMBRES: </strong><span id="valor-nro-nombres">'.$socio->nombres.'</span></div>
       <div class="rp-socio" id="rp-tipo-socio"><strong>TIPO DE SOCIO: </strong>'.$socio->tipo_socio.'</div>
-      <div class="rp-socio" id="rp-estado"><strong>ESTADO: </strong>'.$socio->estado.'</div>
-      <div class="rp-socio" id="rp-categoria"><strong>CATEGORIA: </strong>'.$socio->categoria.'</div>
+      <div class="rp-socio" id="rp-estado"><strong>ESTADO: </strong>'.$socio->estado.'</div>'.
+      $categoria_tipo_grupo_familiar.'
       </div>',
     );
 
+    //creamos un fieldset para mostrar la deuda detallada del socio
     $form['plan_pago']['deuda_socio'] = array(
       '#type'=>'fieldset',
       '#title'=>'DEUDA DEL SOCIO'
@@ -70,17 +107,6 @@ function plan_pago_socio_form($form, &$form_state)
     $form['plan_pago']['deuda_socio']['plan_de_pago_table'] = array(
       '#markup' => deuda_table_markup($deuda),
     );
-
-    /*$form['plan_pago']['deuda_socio']['revalorizar'] = array(
-      '#type'=>'submit',
-      '#value'=>'REVALORIZAR',
-      '#submit'=>array('revalorizar_form_submit'),
-      '#limit_validation_errors'=>array(),
-      '#description'=>'Actualiza los conceptos a los valores actuales'
-    );*/
-
-    //buscamos los item de cuenta corriente que se incluyen en el plan de pago
-
   }
   else {
     //si no vino ningun id de socio entonces solo se puede volver atras y se muestra un mensaje
@@ -92,6 +118,7 @@ function plan_pago_socio_form($form, &$form_state)
     '#title'=>'CANTIDAD DE CUOTAS',
     '#options'=>array(1=>1,2=>2,3=>3,4=>4,5=>5,6=>6,7=>7,8=>8,9=>9,10=>10,11=>11,12=>12),
     '#required'=>true,
+    '#attributes'=>array('id'=>array('cant-cuotas'), 'onchange'=>"myFunction()")
   );
   //calculamos el total de la dueda
   $total_deuda = calcular_total_deuda($deuda);
@@ -102,21 +129,23 @@ function plan_pago_socio_form($form, &$form_state)
     '#field_prefix'=>'$',
     '#disabled'=>TRUE,
     '#default_value'=>$total_deuda,
+    '#attributes'=>array('id'=>array('total-deuda'))
   );
 
-  /*$form['plan_pago']['valor_cuota'] = array(
-    '#prefix'=>'<div id="pp-valor-cuota">',
+  $form['plan_pago']['valor_cuota'] = array(
     '#type'=>'textfield',
     '#title'=>'VALOR DE LA CUOTA',
     '#field_prefix'=>'$',
     '#disabled'=>TRUE,
-    '#suffix'=>'</div>'
-  );*/
+    '#attributes'=>array('id'=>array('valor-cuota')),
+  );
 
   $form['plan_pago']['registrar_plan_pago'] = array(
     '#type'=>'submit',
     '#value'=>'REGISTRAR PLAN DE PAGO',
+    //'#executes_submit_callback'=>false,
     '#submit'=>array('registrar_plan_pago_form'),
+    '#attributes'=>array('onclick'=>"PrintAcuerdoPlanPago('texto-mes-anio', 'cant-cuotas','total-deuda')")
   );
 
   $form['plan_pago']['volver'] = array(
@@ -125,6 +154,9 @@ function plan_pago_socio_form($form, &$form_state)
     '#submit'=>array('plan_pago_socio_volver_form'),
   );
 
+  /*$form['plan_pago']['imprimir'] = array(
+    '#markup'=>'<div id="imprimir"><a href="#" onclick="PrintElem(\'texto-mes-anio\', \'cant-cuotas\',\'total-deuda\')">IMPRIMIR</a></div>',
+  );*/
   return $form;
 }
 
@@ -163,8 +195,7 @@ function registrar_plan_pago_form($form, &$form_state)
     $monto_a_devolver = $form_state['values']['total_deuda'];
     $monto_a_devolver = str_replace(',', '', $monto_a_devolver);
     $interes = 0;
-    drupal_set_message('MONTO BASE '.$monto_base);
-    drupal_set_message('MONTO A DEVOLVER '.$monto_a_devolver);
+
     //generamos el plan de pago en activo 1
     $id_plan_pago = db_insert('io_plan_pago')
     ->fields(array( 'monto_base'=>$monto_base,
@@ -178,7 +209,7 @@ function registrar_plan_pago_form($form, &$form_state)
     ->execute();
 
     //ahora que ya tenemos el plan de pago creado calculamos el valor de cada cuota
-    drupal_set_message('CANTIDAD DE CUOTAS '.$cant_cuotas);
+
     $valor_cuota = number_format(($monto_a_devolver / $cant_cuotas), 2);
     $valor_cuota = str_replace(',', '', $valor_cuota);
     //vamos sumando en un subtotal lo que acumula cada cuota
@@ -195,14 +226,13 @@ function registrar_plan_pago_form($form, &$form_state)
       ->execute();
       //sumamos en el subtotal lo que acumula cada cuota
       $subtotal += $valor_cuota;
-      drupal_set_message('SUBTOTAL '.$subtotal);
     }
     $subtotal = str_replace(',', '', $subtotal);
     //la ultima cuota es la resta del total_deuda - el subtotal
     //esto se hace por una cuestion de redondeo
     $ultima_cuota = $monto_a_devolver - $subtotal;
     $ultima_cuota = str_replace(',', '', $ultima_cuota);
-    drupal_set_message('ULTIMA CUOTA '.$ultima_cuota);
+
     //se pega en la base la ultima cuota del plan de pago
     db_insert('io_cuota_plan_pago')
     ->fields(array( 'monto'=> $ultima_cuota,
@@ -226,6 +256,8 @@ function registrar_plan_pago_form($form, &$form_state)
       ->condition('id_cta_cte_item', $item_deuda->id_cta_cte_item, '=')
       ->execute();
     }
+    drupal_set_message('El plan de pago para el socio se generó correctamente!');
+    plan_pago_socio_volver_form($form, $form_state);
   }
   catch (Exception $e) {
   		$transaction->rollback();
@@ -254,7 +286,7 @@ function deuda_table_markup($deuda_socio)
   //$cuota_plan_mostrar[$ultima_cuota]['monto'] = '$ '.number_format(($monto_devolver-$monto_subtotal),2);
   $header = array(t('FECHA DE EMISION'),t('MES'), t('AÑO'), t('CONCEPTO'), t('VALOR'), t('VALOR ACTUALIZADO'));
 
-  $output = theme('table', array('header' => $header, 'rows' => $deuda_mostrar));
+  $output = theme('table', array('header' => $header, 'rows' => $deuda_mostrar, 'class'=>'listado-deuda-socio'));
 
   return $output;
 }

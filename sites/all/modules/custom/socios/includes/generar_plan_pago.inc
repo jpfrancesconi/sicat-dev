@@ -14,6 +14,9 @@
 */
 function generar_plan_pago_buscar_form($form, &$form_state)
 {
+  $form['#attached']['css'] = array(
+    drupal_get_path('module', 'socios') . '/css/socios.css',
+  );
   //si esta seteado el parametro get ns quiere decir que se esta buscando por numero de socio
   if(!empty($_GET['ns']) && isset($_GET['ns']))
   {
@@ -36,6 +39,8 @@ function generar_plan_pago_buscar_form($form, &$form_state)
   $form['buscar_socio'] = array(
     '#type'=>'fieldset',
     '#title'=>'BUSCAR SOCIO',
+    '#collapsible'=>TRUE,
+    '#collapsed'=>FALSE
   );
 
   $form['buscar_socio']['nro_socio'] = array(
@@ -84,7 +89,10 @@ function generar_plan_pago_buscar_form($form, &$form_state)
 	$i = 0;
 	//recorremos todos los socios recuperados y generamos el array de opciones
   if(!is_null($socios))
-  	while ($socio = $socios->fetchObject())
+  {
+    //colapasamos el buscador
+    $form['buscar_socio']['#collapsed'] = TRUE;
+    while ($socio = $socios->fetchObject())
   	{
       $id_socio = $socio->id_socio;
   		//ver si el socio es titular de familia en la categoria se pegara el tipo de grupo familiar
@@ -119,6 +127,8 @@ function generar_plan_pago_buscar_form($form, &$form_state)
   		$filas_socios[$id_socio] = $fila_socio;
   		$i++;
     }
+  }
+
 
   $form['socios_buscados']['listado_socios'] = array(
 		'#type' => 'tableselect',

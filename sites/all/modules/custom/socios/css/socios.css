@@ -198,3 +198,18 @@ div#overlay-close-wrapper {
 .vertical-tabs-panes {
     margin-bottom: 20px;
 }
+
+/*PLAN DE PAGO*/
+.form-item.form-type-textfield.form-item-nro-socio {
+    width: 40%;
+}
+
+.form-item.form-type-textfield.form-item-nombres {
+    float: left;
+    width: 40%;
+}
+
+.form-item.form-type-textfield.form-item-apellidos {
+    margin-top: 20px;
+    margin-left: 47%;
+}
