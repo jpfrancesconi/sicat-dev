@@ -100,27 +100,27 @@ function gestionar_socios_form($form, &$form_state)
 
 	$form['gestion_socios']['filtrar']['buscar'] = array(
 		'#value' => t('BUSCAR'),
-	    '#type' => 'submit',
+    '#type' => 'submit',
 	);
 
 	$form['gestion_socios']['filtrar']['nuevo_socio'] = array(
 		'#value' => t('NEVO SOCIO'),
-	    '#type' => 'submit',
-	    '#limit_validation_errors'=> array(),
+    '#type' => 'submit',
+    '#limit_validation_errors'=> array(),
 		'#submit'=> array('nuevo_socio_submit'),
 	);
 
 	$header_socios = array(
 		'nro_socio'=>t('NRO. SOCIO'),
 		'apellidos'=>t('APELLIDO'),
-	    'nombres'=>t('NOMBRE'),
-	    'tipo_doc'=>t('TIPO DOC.'),
-	    'nro_doc'=>t('NUMERO DOC.'),
-	    'fecha_ingreso'=>t('FECHA DE INGRESO'),
-	    'estado'=>t('ESTADO'),
-	    'categoria_socio'=>t('CAT. O TIPO GRUPO FAMILIAR'),
-	    'tipo_socio'=>t('TIPO DE SOCIO'),
-    );
+    'nombres'=>t('NOMBRE'),
+    'tipo_doc'=>t('TIPO DOC.'),
+    'nro_doc'=>t('NUMERO DOC.'),
+    'fecha_ingreso'=>t('FECHA DE INGRESO'),
+    'estado'=>t('ESTADO'),
+    'categoria_socio'=>t('CAT. O TIPO GRUPO FAMILIAR'),
+    'tipo_socio'=>t('TIPO DE SOCIO'),
+  );
 
 
 	if(empty($socios))
@@ -136,7 +136,7 @@ function gestionar_socios_form($form, &$form_state)
 		{
 			$id_socio = $socio->id_socio;
 			//ver si el socio es miembro de familia y buscar el numero de socio del titular
-			if($socio->id_tipo_socio == 2)
+			/*if($socio->id_tipo_socio == 2)
 			{
 				$grupo_familiar = get_grupo_familiar($socio->id_socio);
 				$socio->nro_socio = $grupo_familiar->nro_socio_titular;
@@ -151,12 +151,12 @@ function gestionar_socios_form($form, &$form_state)
 				//si es titular de familia y se busco por nro de socio me debe traer
 				if((isset($params['nro_socio']) && !is_null($params['nro_socio'])))
 				{
-					
+
 				}
 				//drupal_set_message('<pre>'.print_r($grupo_familiar,true).'</pre>');
 				//$socios_gf = get_socios_gf($socio->id_grupo_familiar);
 				//drupal_set_message('<pre>'.print_r($socios_gf->fetchAll(),true).'</pre>');
-			}
+			}*/
 
 			$fila_socio =
 			array(

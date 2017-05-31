@@ -1,3 +1,14 @@
+body.html.not-front.logged-in.no-sidebars.page-socios.page-socios-registrar-pago #page-wrap,
+body.html.not-front.logged-in.no-sidebars.page-socios.page-socios-gestionar-socios #page-wrap,
+body.html.not-front.logged-in.no-sidebars.page-socios.page-socios-cobranza #page-wrap {
+    max-width: 90%;
+}
+body.html.not-front.logged-in.no-sidebars.page-socios.page-socios-registrar-pago #page-wrap .container-wrap,
+body.html.not-front.logged-in.no-sidebars.page-socios.page-socios-gestionar-socios #page-wrap .container-wrap,
+body.html.not-front.logged-in.no-sidebars.page-socios.page-socios-cobranza #page-wrap .container-wrap{
+  max-width: 100%;
+}
+
 a {
     color: #c02737;
     text-decoration: none;
@@ -56,4 +67,3 @@ span.nolink:hover{
 .footer_credit {
     background: #cd0a0a;
 }
-

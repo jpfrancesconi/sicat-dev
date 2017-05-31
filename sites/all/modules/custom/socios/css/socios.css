@@ -199,10 +199,25 @@ div#overlay-close-wrapper {
     margin-bottom: 20px;
 }
 
-<<<<<<< HEAD
-/*PLAN DE PAGO*/
+/*COBRANZAS - PLAN DE PAGO*/
 .form-item.form-type-textfield.form-item-nro-socio {
     width: 40%;
+}
+input#edit-nro-socio {
+    width: 340px;
+}
+
+.form-item.form-type-select.form-item-tipo-doc {
+    float: left;
+}
+
+.form-item.form-type-textfield.form-item-nro-doc {
+    margin-left: 160px;
+    margin-top: 19px;
+}
+
+input#edit-nro-doc {
+    width: 181px;
 }
 
 .form-item.form-type-textfield.form-item-nombres {
@@ -212,9 +227,9 @@ div#overlay-close-wrapper {
 
 .form-item.form-type-textfield.form-item-apellidos {
     margin-top: 20px;
-    margin-left: 47%;
+    margin-left: 42%;
 }
-=======
+
 /*INGRESO DE SOSICOS*/
 .page-socios-ingreso-socio div#page-wrap {
     max-width: 96vw;
@@ -223,4 +238,3 @@ div#overlay-close-wrapper {
 .page-socios-ingreso-socio .container-wrap {
     max-width: 100vw;
 }
->>>>>>> origin/master
