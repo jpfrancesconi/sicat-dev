@@ -200,6 +200,7 @@ div#overlay-close-wrapper {
 }
 
 /*COBRANZAS - PLAN DE PAGO*/
+/*
 .form-item.form-type-textfield.form-item-nro-socio {
     width: 40%;
 }
@@ -215,10 +216,10 @@ input#edit-nro-socio {
     margin-left: 160px;
     margin-top: 19px;
 }
-
+*/
 input#edit-nro-doc {
     width: 181px;
-}
+}/*
 
 .form-item.form-type-textfield.form-item-nombres {
     float: left;
@@ -228,7 +229,7 @@ input#edit-nro-doc {
 .form-item.form-type-textfield.form-item-apellidos {
     margin-top: 20px;
     margin-left: 42%;
-}
+}*/
 
 /*INGRESO DE SOSICOS*/
 .page-socios-ingreso-socio div#page-wrap {
