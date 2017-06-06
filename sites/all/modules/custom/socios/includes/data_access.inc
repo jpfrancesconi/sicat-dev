@@ -1114,7 +1114,7 @@ function get_datos_socio_pago_por_item_cc($id_item_cta_cte)
 {
 	$datos_socio_pago = db_query('
 	SELECT icc.id_cta_cte_item,
-	date_format(icc.fecha_emision,, \'%d/%m/%Y\') as fecha_emision,
+	date_format(icc.fecha_emision, \'%d-%m-%Y\') as fecha_emision,
 	icc.mes,
 	icc.anio,
 	icc.concepto_id,
@@ -1128,7 +1128,7 @@ function get_datos_socio_pago_por_item_cc($id_item_cta_cte)
 	per.nombres,
 	per.direccion,
 	IF(soc.tipo_socio_id = 1, cs.nombre, tgf.nombre) as cate_tgf,
-	ts.descripcion as tipo_socio,
+	ts.descripcion as tipo_socio
 	FROM io_cta_cte_item icc
 	INNER JOIN io_cta_cte cc on cc.id_cta_cte = icc.cta_cte_id
 	INNER JOIN io_concepto conc on conc.id_concepto = icc.concepto_id
