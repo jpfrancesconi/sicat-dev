@@ -5,7 +5,7 @@
 * @param
 * @return array - socios
 */
-function get_socios($apellidos=NULL, $nombres=NULL, $nro_socio=NULL,$estado=NULL, $tipo_socio=NULL, $categoria_socio=NULL)
+function get_socios($apellidos=NULL, $nombres=NULL, $nro_socio=NULL,$estado=NULL, $tipo_socio=NULL, $categoria_socio=NULL, $tipo_doc=NULL, $nro_doc=NULL)
 {
 	$apellidos = mb_strtoupper($apellidos, 'UTF-8');
 	$nombres = mb_strtoupper($nombres, 'UTF-8');
@@ -33,6 +33,10 @@ function get_socios($apellidos=NULL, $nombres=NULL, $nro_socio=NULL,$estado=NULL
 		$select->condition('per.apellidos', '%'.db_like($apellidos).'%', 'LIKE');
 	if(!is_null($nombres) && isset($nombres))
 		$select->condition('per.nombres', '%'.db_like($nombres).'%', 'LIKE');
+	if(!is_null($tipo_doc)&& isset($tipo_doc))
+		$select->condition('per.tipo_doc', $tipo_doc, '=');
+	if(!is_null($nro_doc)&& isset($nro_doc))
+			$select->condition('per.nro_doc', $nro_doc, '=');
 	if(!is_null($nro_socio) && isset($nro_socio))
 	{
 		//definimos una condicion or
@@ -1142,5 +1146,108 @@ function get_datos_socio_pago_por_item_cc($id_item_cta_cte)
 	WHERE icc.id_cta_cte_item = :id_cta_cte_item',array(':id_cta_cte_item' => $id_item_cta_cte))->fetchObject();
 
 	return $datos_socio_pago;
+}
+
+//recuepera los datos del socio y los datos del item pasado por parametro
+function get_items_cta_cte_por_recibo($id_recibo)
+{
+	$datos_socio_pago = db_query('
+	SELECT rs.id_recibo,
+	icc.id_cta_cte_item,
+	date_format(icc.fecha_emision, \'%d-%m-%Y\') as fecha_emision,
+	icc.mes,
+	icc.anio,
+	icc.concepto_id,
+	icc.valor,
+	icc.pagado,
+	conc.nombre as concepto,
+	soc.id_socio,
+	soc.nro_socio,
+	soc.tipo_socio_id,
+	per.apellidos,
+	per.nombres,
+	per.direccion,
+	IF(soc.tipo_socio_id = 1, cs.nombre, tgf.nombre) as cate_tgf,
+	ts.descripcion as tipo_socio
+	FROM io_cta_cte_item icc
+	INNER JOIN io_cta_cte cc on cc.id_cta_cte = icc.cta_cte_id
+	INNER JOIN io_concepto conc on conc.id_concepto = icc.concepto_id
+	INNER JOIN io_socio soc on soc.id_socio = cc.socio_id
+	INNER JOIN io_persona per on per.id_persona = soc.persona_id
+	INNER JOIN io_tipo_socio ts on ts.id_tipo_socio = soc.tipo_socio_id
+	INNER JOIN io_recibo_item rs_i on rs_i.cta_cte_item_id = icc.id_cta_cte_item
+	INNER JOIN io_recibo rs on rs.id_recibo = rs_i.recibo_id
+	LEFT JOIN io_categoria_socio cs on cs.id_categoria_socio = soc.categoria_socio_id
+	LEFT JOIN io_grupo_familiar_socio gfs on gfs.socio_id = soc.id_socio
+	LEFT JOIN io_grupo_familiar gf on gf.id_grupo_familiar = gfs.grupo_familiar_id
+	LEFT JOIN io_tipo_grupo_familiar tgf on tgf.id_tipo_grupo_familiar = gf.tipo_grupo_familiar_id
+	WHERE rs.id_recibo = :id_recibo',array(':id_recibo' => $id_recibo))->fetchAll();
+	//drupal_set_message('<pre>'.print_r($datos_socio_pago, true).'</pre>');
+	return $datos_socio_pago;
+}
+
+//genera la liquidacion correspondiente a un mes y a un año
+function generar_liquidacion_mensual($mes, $anio)
+{
+	//primero debemos validar que no exista una liquidacion generada para este mismo periodo
+	if(existe_liquidacion($mes, $anio))
+	{
+		//si existe retornaremos un valor 1 que indicara que ya existe
+		$resultado_liquidacion = 1;
+	}
+	else {
+		//llamamos al procedimiento almacenado que genera la liquidacion de todo el mes
+		$resultado_liquidacion = db_query('CALL PRC_GENERAR_MOVIMIENTOS(:anio,:mes)',array(':anio' => $anio, ':mes' => $mes))->fetchObject();
+		//drupal_set_message('<pre>'.print_r($resultado_liquidacion, true).'</pre>');
+	}
+
+	return $resultado_liquidacion;
+}
+
+function existe_liquidacion($mes, $anio)
+{
+	//revisamos en la tabla movimiento si existe la liquidacion genera para ese mes y año
+	$movimiento = db_query('SELECT count(*) AS cant_movimientos FROM io_movimiento WHERE anio = :anio AND mes = :mes',array(':anio' => $anio, ':mes' => $mes))->fetchObject();
+
+	//si la cantidad de movimientos retornada por la consulta es mayor a 0 significa que existe ya un movimiento para ese mes y año
+	if($movimiento->cant_movimientos > 0)
+	{
+		return true;
+	}
+	else {
+		return false;
+	}
+}
+
+function get_id_socio_por_doc($tipo_doc, $nro_doc)
+{
+	$socio = db_query('SELECT soc.id_socio
+ 										 FROM io_socio soc
+	 									 INNER JOIN io_persona per ON per.id_persona = soc.persona_id
+										 WHERE per.tipo_doc = :tipo_doc AND per.nro_doc = :nro_doc', array(':tipo_doc'=>$tipo_doc, ':nro_doc'=>$nro_doc))->fetchObject();
+
+	if(isset($socio->id_socio))
+	{
+		return $socio->id_socio;
+	}
+	else {
+		return null;
+	}
+}
+
+
+function get_id_socio_por_nro_socio($nro_socio)
+{
+	$socio = db_query('SELECT soc.id_socio
+ 										 FROM io_socio soc
+										 WHERE soc.tipo_doc = :tipo_doc AND per.nro_doc = :nro_doc', array(':tipo_doc'=>$tipo_doc, ':nro_doc'=>$nro_doc))->fetchObject();
+
+	if(isset($socio->id_socio))
+	{
+		return $socio->id_socio;
+	}
+	else {
+		return null;
+	}
 }
 ?>

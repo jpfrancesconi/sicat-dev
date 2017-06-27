@@ -17,11 +17,15 @@ include 'includes/registrar_pagos_cod_barra.inc';
 include 'includes/generar_cupones.inc';
 include 'includes/adjuntar_foto.inc';
 include 'includes/ingreso_socio.inc';
-include 'includes/generar_plan_pago.inc';
+include 'includes/cobranza_socio.inc';
 include 'includes/plan_pago_socio.inc';
+include 'includes/test.inc';
+include 'includes/imprimir_cuenta_socio.inc';
+include 'includes/generar_liquidacion.inc';
 
 function socios_init(){
-  //drupal_add_js(drupal_get_path('module', 'generico') . '/js/generico.js');
+   drupal_add_js(array('custom' => array('generar_liquidacion' => url('socios/generar_liquidacion_ajax'))), 'setting');
+   drupal_add_js(drupal_get_path('module', 'socios') . '/js/generar_liquidacion.js');
 
 }
 
@@ -85,13 +89,25 @@ function socios_permission(){
     'title' => t('Gestion de socios - Control de Ingreso de Socios'),
     'description' => t('Permisos para acceder al Control de Ingresos de Socios.'),
   ),
-  'acceso a generar plan de pago' =>  array(
-    'title' => t('Gestion de socios - Buscar socio para generar un plan de pago'),
-    'description' => t('Permisos para acceder a buscar un socio para generar un plan de pago.'),
+  'acceso a gestion socio cobranza' =>  array(
+    'title' => t('Gestion de socios - Buscar socio para gestion de cobranzas'),
+    'description' => t('Permisos para acceder a buscar un socio para gestionar un socio para su cobranza.'),
   ),
   'acceso a generar plan de pago socio' =>  array(
     'title' => t('Gestion de socios - Plan de Pago de un socio'),
     'description' => t('Permisos para acceder al registro de un plan de pago de un socio.'),
+  ),
+  'acceso a imprimir cuenta socio' =>  array(
+    'title' => t('Gestion de socios - Imprimir cuenta de socio'),
+    'description' => t('Permisos para acceder a imprimir la cuenta pagada de un socio.'),
+  ),
+  'acceso a generar liquidacion mensual' =>  array(
+    'title' => t('Gestion de socios - Generar Liquidación Mensual'),
+    'description' => t('Permisos para acceder a generar la liquiacion mensual.'),
+  ),
+  'acceso a ingreso socio - socio' =>  array(
+    'title' => t('Gestion de socios - Control de Ingreso de Socios - Ver datos del socio'),
+    'description' => t('Permisos para acceder a ver los datos  del socio en el control de Ingresos de Socios.'),
   ),
   );
 }
@@ -229,13 +245,13 @@ function socios_menu()
     'access arguments' => array('acceso a ingreso socios'),
     'expanded' => TRUE,
   );//ingreso_socio.inc
-  $items['socios/plan_pago'] = array(
-    'title' => 'PLAN DE PAGO',
+  $items['socios/cobranza'] = array(
+    'title' => 'COBRANZA',
     'page callback' => 'drupal_get_form',
-    'page arguments' => array('generar_plan_pago_buscar_form'),
-    'access arguments' => array('acceso a generar plan de pago'),
+    'page arguments' => array('cobranza_socio_buscar_form'),
+    'access arguments' => array('acceso a gestion socio cobranza'),
     'expanded' => TRUE,
-  );//generar_plan_pago.inc
+  );//cobranza_socio.inc
   $items['socios/plan_pago_socio'] = array(
     'title' => 'PLAN DE PAGO',
     'page callback' => 'drupal_get_form',
@@ -243,6 +259,39 @@ function socios_menu()
     'access arguments' => array('acceso a generar plan de pago de un socio'),
     'expanded' => TRUE,
   );//plan_pago_socio.inc
+  $items['socios/registrar_pago/imprimir'] = array(
+    'title' => 'RESUMEN DE PAGO',
+    'page callback' => 'drupal_get_form',
+    'page arguments' => array('imprimir_cuenta_socio_form'),
+    'access arguments' => array('acceso a imprimir cuenta socio'),
+    'expanded' => TRUE,
+  );//imprimir_cuenta_socio.inc
+  $items['socios/generar_liquidacion'] = array(
+    'title' => 'LIQUIDACIÓN MENSUAL',
+    'page callback' => 'drupal_get_form',
+    'page arguments' => array('generar_liquidacion_form'),
+    'access arguments' => array('acceso a generar liquidacion mensual'),
+    'expanded' => TRUE,
+  );//generar_liquidacion.inc
+  $items['socios/generar_liquidacion_ajax'] = array(
+    'type' => MENU_CALLBACK,
+     'page callback' => 'generar_liquidacion_callback',
+     'access arguments' => array('access content'),
+  );//imprimir_cuenta_socio.inc
+  $items['socios/ingreso_socio/socio'] = array(
+    'title' => 'SOCIO',
+    'page callback' => 'drupal_get_form',
+    'page arguments' => array('ingreso_socio_datos_socio_form'),
+    'access arguments' => array('acceso a ingreso socio - socio'),
+    'expanded' => TRUE,
+  );//imprimir_cuenta_socio.inc
+  /*$items['socios/test'] = array(
+    'title' => 'TEST',
+    'page callback' => 'drupal_get_form',
+    'page arguments' => array('test_form'),
+    'access arguments' => TRUE,
+    'expanded' => TRUE,
+  );//test.inc*/
 
   return $items;
 }

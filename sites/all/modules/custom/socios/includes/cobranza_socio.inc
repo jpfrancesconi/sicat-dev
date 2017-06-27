@@ -12,7 +12,7 @@
 /**
 * Formulario que busca un socio para generar un plan de pago
 */
-function generar_plan_pago_buscar_form($form, &$form_state)
+function cobranza_socio_buscar_form($form, &$form_state)
 {
   $form['#attached']['css'] = array(
     drupal_get_path('module', 'socios') . '/css/socios.css',
@@ -22,14 +22,21 @@ function generar_plan_pago_buscar_form($form, &$form_state)
   {
     $nro_socio = $_GET['ns'];
     //buscamos el socio que corresponda con ese numero de socio
-    $socios = get_socios_deudor($nro_socio, NULL, NULL);
+    $socios = get_socios_deudor($nro_socio, NULL, NULL, NULL, NULL);
+  }//sino buscamos si los parametros tipo de documento y numero de documento esta seteado
+  else if((!empty($_GET['td']) && isset($_GET['td'])) || (!empty($_GET['nd']) && isset($_GET['nd'])))
+  {
+    $tipo_doc = (isset($_GET['td']) ? $_GET['td'] : NULL);
+    $nro_doc = (isset($_GET['nd']) ? $_GET['nd'] : NULL);
+    //buscamos el socio que corresponda con ese numero de socio
+    $socios = get_socios_deudor(NULL, NULL, NULL, $tipo_doc, $nro_doc);
   }//sino buscamos si los parametros apellidos y/o nombre esta seteados para buscar socios por sus apellidos y/o nombres
   else if((!empty($_GET['ap']) && isset($_GET['ap'])) || (!empty($_GET['nom']) && isset($_GET['nom'])))
   {
     $nombres = (isset($_GET['nom']) ? $_GET['nom'] : NULL);
     $apellidos = (isset($_GET['ap']) ? $_GET['ap'] : NULL);
     //buscamos el socio que corresponda con ese numero de socio
-    $socios = get_socios_deudor(NULL, $apellidos,$nombres);
+    $socios = get_socios_deudor(NULL, $apellidos, $nombres, NULL, NULL);
   }
   else {
     $socios = null;
@@ -48,6 +55,19 @@ function generar_plan_pago_buscar_form($form, &$form_state)
     '#title'=>'NRO. DE SOCIO',
     '#default_value'=>(isset($nro_socio) ? $nro_socio : null)
   );
+
+  $form['buscar_socio']['tipo_doc'] = array(
+		'#type'=>'select',
+		'#title'=>'TIPO DE DOCUMENTO',
+		'#options' => array('DNI'=>'DNI','LC'=>'LC','LE'=>'LE','DNI EXT.'=>'DNI EXT.'),
+    '#default_value'=>(isset($tipo_doc) ? $tipo_doc : null)
+	);
+
+	$form['buscar_socio']['nro_doc'] = array(
+		'#type'=>'textfield',
+		'#title'=>'NUMERO DE DOCUMENTO',
+    '#default_value'=>(isset($nro_doc) ? $nro_doc : null)
+	);
 
   $form['buscar_socio']['nombres'] = array(
     '#type'=>'textfield',
@@ -75,6 +95,8 @@ function generar_plan_pago_buscar_form($form, &$form_state)
   //definimos el encabezado de la tabla de resultado
   $header_socios = array(
     'nro_socio'=>'NRO. SOCIO',
+    'tipo_doc'=>'TIPO DOC.',
+    'nro_doc'=>'NRO. DOC.',
     'apellidos'=>'APELLIDOS',
     'nombres'=>'NOMBRES',
     'estado'=>'ESTADO',
@@ -109,6 +131,8 @@ function generar_plan_pago_buscar_form($form, &$form_state)
   		$fila_socio =
   		  array(
   		    'nro_socio'=> $socio->nro_socio.'/'.$socio->secuencia,
+          'tipo_doc'=> $socio->tipo_doc,
+          'nro_doc'=> $socio->nro_doc,
   		    'apellidos'=> $socio->apellidos,
   		    'nombres'=> $socio->nombres,
   		    'estado'=> '<span style="color:'.$color_estado.';"><strong>'.$socio->estado.'</strong></span>',
@@ -145,7 +169,7 @@ function generar_plan_pago_buscar_form($form, &$form_state)
   		'#markup'=>theme('pager'),
   	);*/
 
-	$form['socios']['gestion_socios']['ver_socio'] = array(
+	$form['socios_buscados']['generar_plan_pago'] = array(
 		'#type'=>'submit',
 		'#name'=>'ver_socio',
 		'#value'=>'GENERAR PLAN DE PAGO',
@@ -153,12 +177,20 @@ function generar_plan_pago_buscar_form($form, &$form_state)
 		'#submit'=>array('generar_plan_pago_submit'),
 	);
 
+  $form['socios_buscados']['registrar_pago'] = array(
+    '#type'=>'submit',
+    '#name'=>'ver_socio',
+    '#value'=>'REGISTRAR PAGO',
+    '#validate'=>array('registrar_pago_valdiate'),
+    '#submit'=>array('registrar_pago_submit'),
+  );
+
   //$form['socios_buscados']['listado_socios'];
 
   return $form;
 }
 
-function generar_plan_pago_buscar_form_validate($form, &$form_state)
+function cobranza_socio_buscar_form_validate($form, &$form_state)
 {
   //validamos que el numero de socios contenga solo numeros
   if(!empty($form_state['values']['nro_socio']) && !is_numeric($form_state['values']['nro_socio']))
@@ -175,7 +207,7 @@ function generar_plan_pago_buscar_form_validate($form, &$form_state)
   }
 }
 
-function generar_plan_pago_buscar_form_submit($form, &$form_state)
+function cobranza_socio_buscar_form_submit($form, &$form_state)
 {
   //drupal_set_message('<pre>'.print_r($form_state['values'], true).'</pre>');
 
@@ -184,7 +216,20 @@ function generar_plan_pago_buscar_form_submit($form, &$form_state)
   {
     $nro_socio = $form_state['values']['nro_socio'];
     //redireccionamos a la misma pagina pero con el parametro ns correspondiente al numero de socio
-    $form_state['redirect']=array('socios/plan_pago', array('query'=>array('ns'=>$nro_socio)));
+    $form_state['redirect']=array('socios/cobranza', array('query'=>array('ns'=>$nro_socio)));
+  }
+  else if(!empty($form_state['values']['tipo_doc']) && isset($form_state['values']['tipo_doc'])
+          && !empty($form_state['values']['nro_doc']) && isset($form_state['values']['nro_doc']))
+  {
+    //definimos un array de parametros
+    $params = array('query'=>array());
+    //si se busca por apellido, se ingreso un apellido
+    if(!empty($form_state['values']['tipo_doc']) && isset($form_state['values']['tipo_doc']))
+      $params['query']['td'] = $form_state['values']['tipo_doc'];
+    if(!empty($form_state['values']['nro_doc']) && isset($form_state['values']['nro_doc']))
+      $params['query']['nd'] = $form_state['values']['nro_doc'];
+    //redireccionamos a la misma pagina pero con el parametro ap y nom correspondiente al apellido y nombre
+    $form_state['redirect']=array('socios/cobranza', $params);
   }
   else {
     //definimos un array de parametros
@@ -195,7 +240,7 @@ function generar_plan_pago_buscar_form_submit($form, &$form_state)
     if(!empty($form_state['values']['nombres']) && isset($form_state['values']['nombres']))
       $params['query']['nom'] = $form_state['values']['nombres'];
     //redireccionamos a la misma pagina pero con el parametro ap y nom correspondiente al apellido y nombre
-    $form_state['redirect']=array('socios/plan_pago', $params);
+    $form_state['redirect']=array('socios/cobranza', $params);
   }
 }
 
@@ -216,6 +261,32 @@ function generar_plan_pago_submit($form, &$form_state)
 
     //redireccionamos a la proxima pagina gestionar el plan de pago
     $form_state['redirect']=array('socios/plan_pago_socio', array('query'=>array('id_s'=>$id_socio_seleccionado)));
+  }
+  catch (Exception $e) {
+  		watchdog_exception('generar_plan_pago', $e);
+  		drupal_set_message("Error en la trasaccion - Comunicarse con el proveedor de sistemas.");
+	}
+
+
+}
+
+function registrar_pago_valdiate($form, &$form_state)
+{
+  //validamos que se haya seleccionado un socio de la lista para generarle el plan de pago
+  if(empty($form_state['values']['listado_socios']))
+	{
+		form_set_error('listado_socios', 'Debe seleccionar un socio para realizar la accion sobre el mismo');
+	}
+}
+
+function registrar_pago_submit($form, &$form_state)
+{
+  try {
+    //creamos un arrray dentro del SESSION para que sea recuperado dentro de params
+    $id_socio_seleccionado = (!empty($form_state['values']['listado_socios']) ? $form_state['values']['listado_socios'] : NULL);
+
+    //redireccionamos a la proxima pagina gestionar el plan de pago
+    $form_state['redirect']=array('socios/registrar_pago', array('query'=>array('id_s'=>$id_socio_seleccionado)));
   }
   catch (Exception $e) {
   		watchdog_exception('generar_plan_pago', $e);

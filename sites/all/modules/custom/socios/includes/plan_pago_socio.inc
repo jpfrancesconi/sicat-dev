@@ -25,10 +25,10 @@ function plan_pago_socio_form($form, &$form_state)
 	);
 
   //seteamos el lugar al que se debe retrnar y los parametros
-  if(strpos($_SERVER['HTTP_REFERER'], 'plan_pago'))
+  if(strpos($_SERVER['HTTP_REFERER'], 'cobranza'))
 	{
 		$array_retorno = parse_url($_SERVER['HTTP_REFERER']);
-		$_SESSION['retorno'] = 'socios/plan_pago';
+		$_SESSION['retorno'] = 'socios/cobranza';
 		$_SESSION['retorno_params'] =array('query' =>get_params_url($_SERVER['HTTP_REFERER']));
 	}
   //recibimos como parametro el id del socio para el que se generará el plan de pago
@@ -151,6 +151,7 @@ function plan_pago_socio_form($form, &$form_state)
   $form['plan_pago']['volver'] = array(
     '#type'=>'submit',
     '#value'=>'VOLVER',
+    '#limit_validation_errors'=>array(),
     '#submit'=>array('plan_pago_socio_volver_form'),
   );
 

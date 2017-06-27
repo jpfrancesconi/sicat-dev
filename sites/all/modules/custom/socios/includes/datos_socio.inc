@@ -19,19 +19,20 @@ function datos_socio_form($form, &$form_state)
 	);
 
 	if(strpos($_SERVER['HTTP_REFERER'], 'gestionar_socios'))
-	{		
+	{
 		$array_retorno = parse_url($_SERVER['HTTP_REFERER']);
-		$_SESSION['retorno'] = 'socios/gestionar_socios';    
-		$_SESSION['retorno_params'] =array('query' =>get_params_url($_SERVER['HTTP_REFERER']));
+		$_SESSION['retorno'] = 'socios/gestionar_socios';
+		//drupal_set_message('<pre>'.print_r($_SESSION['params'], true).'</pre>');
+		//$_SESSION['retorno_params'] =array('query' =>get_params_url($_SERVER['HTTP_REFERER']));
 	}
 	else if(strpos($_SERVER['HTTP_REFERER'], 'datos_socio') && isset($_GET['ret']))
-	{		
-		$_SESSION['retorno'] = 'socios/datos_socio_ret';    	
+	{
+		$_SESSION['retorno'] = 'socios/datos_socio_ret';
 	}
 	else if(strpos($_SERVER['HTTP_REFERER'], 'datos_socio') && !isset($_GET['ret']))
-	{	
+	{
 		$array_retorno = parse_url($_SERVER['HTTP_REFERER']);
-		$_SESSION['retorno'] = 'socios/gestionar_socios';    
+		$_SESSION['retorno'] = 'socios/gestionar_socios';
 		$_SESSION['retorno_params'] =array('query' =>get_params_url($_SERVER['HTTP_REFERER']));
 	}
 
@@ -44,7 +45,7 @@ function datos_socio_form($form, &$form_state)
 		'#value'=>$id_socio_seleccionado,
 		);
 
-		//drupal_set_message('<pre>'.print_r($form_state['values']['listado_socios'],true).'</pre>');		
+		//drupal_set_message('<pre>'.print_r($form_state['values']['listado_socios'],true).'</pre>');
 		/*drupal_set_message('<pre>'.print_r($filas_socios[$indice_socio_seleccionado],true).'</pre>');
 		$id_socio_seleccionado = $filas_socios[$indice_socio_seleccionado]['id_socio']['data']['#value'];*/
 
@@ -62,32 +63,32 @@ function datos_socio_form($form, &$form_state)
 		}
 
 		$form['socios']['socio']['fs_apellido_nombre']= array(
-			'#type' => 'fieldset',			
+			'#type' => 'fieldset',
 		);
-		
+
 		$form['socios']['socio']['fs_apellido_nombre']['apellido_nombre']= array(
 			'#prefix'=>'<div id="apellido-nombre-socio">',
 	         '#markup'=>'<h2>'.$socio_seleccionado->apellidos.' '.$socio_seleccionado->nombres.'- NUMERO DE SOCIO:'.$socio_seleccionado->nro_socio.'/'.$socio_seleccionado->secuencia.'</h2>',
 	        '#suffix'=>'</div>',
   		);
 
-  		$form['socios']['socio'] ['panel_socio'] = array(   
-		'#type' => 'vertical_tabs', 
+  		$form['socios']['socio'] ['panel_socio'] = array(
+		'#type' => 'vertical_tabs',
 		);
 
-		$form['socios']['socio']['panel_socio']['datos_personales']= array(    
+		$form['socios']['socio']['panel_socio']['datos_personales']= array(
 			'#type'=>'fieldset',
 			'#title'=>t('DATOS PERSONALES'),
   		);
 
 		if(isset($socio_seleccionado->uri_foto))
-			$uri_foto = $socio_seleccionado->uri_foto;		
+			$uri_foto = $socio_seleccionado->uri_foto;
 		else
-			$uri_foto = 'https://cdn0.iconfinder.com/data/icons/handsome-man-avatars/283/stock_man_avatar-17-512.png';	
+			$uri_foto = 'https://cdn0.iconfinder.com/data/icons/handsome-man-avatars/283/stock_man_avatar-17-512.png';
 
 		if(validar_categoria($socio_seleccionado->edad, $socio_seleccionado->categoria_socio_id) || is_null($socio_seleccionado->categoria_socio_id))
 		{
-			$form['socios']['socio']['panel_socio']['datos_personales']['categoria_socio_invalida']= array(    
+			$form['socios']['socio']['panel_socio']['datos_personales']['categoria_socio_invalida']= array(
 				'#prefix'=>'<div class="io-texto texto-dp" id="categoria-socio-invalida">',
 				'#markup'=>'<span><strong>CATEGORÍA DE SOCIO INCORRECTA - REVISAR CATEGORÍA DEL SOCIO</strong></span>',
 				'#suffix'=>'</div>',
@@ -189,49 +190,49 @@ function datos_socio_form($form, &$form_state)
 	       	'#markup'=>l('EDITAR DATOS', 'socios/socio', array('query' => array('id' => $id_socio_seleccionado))),
 	        '#suffix'=>'</div></div>',
   		);
-  		
+
   		//PESTAÑA GRUPO FAMILIAR
-  		//esta pestaña solo se va mostrar si el soscio es de tipo 2 (MIEMBRO DE FAMILIA) o 3 (TITULAR DE FAMILIA) 
+  		//esta pestaña solo se va mostrar si el soscio es de tipo 2 (MIEMBRO DE FAMILIA) o 3 (TITULAR DE FAMILIA)
   		if(($socio_seleccionado->tipo_socio_id == 2) || ($socio_seleccionado->tipo_socio_id == 3))
   		{
   			//buscamos los socios que componen el grupo familiar
   			$grupo_familiar = get_socios_grupo_familiar($id_socio_seleccionado);
-  			//drupal_set_message('<pre>'.print_r($grupo_familiar, true).'</pre>');  			
+  			//drupal_set_message('<pre>'.print_r($grupo_familiar, true).'</pre>');
 
-  			$form['socios']['socio']['panel_socio']['grupo_familiar']= array(    
+  			$form['socios']['socio']['panel_socio']['grupo_familiar']= array(
 				'#type'=>'fieldset',
 				'#title'=>t('GRUPO FAMILIAR'),
-  			);		
+  			);
 
   			if(validar_tipo_grupo_familiar($grupo_familiar))
   			{
-  				$form['socios']['socio']['panel_socio']['grupo_familiar']['gf_invalido']= array(    
+  				$form['socios']['socio']['panel_socio']['grupo_familiar']['gf_invalido']= array(
 					'#prefix'=>'<div class="io-texto texto-gf" id="grupo-familiar-invalido">',
 		       		'#markup'=>'<span><strong>GRUPO FAMILIAR INCORRECTO - REVISAR TIPO DE GRUPO FAMILIAR</strong></span>',
 		        	'#suffix'=>'</div>',
   				);
   			}
 
-  			$form['socios']['socio']['panel_socio']['grupo_familiar']['tipo_gf']= array(    
+  			$form['socios']['socio']['panel_socio']['grupo_familiar']['tipo_gf']= array(
 				'#prefix'=>'<div class="io-texto texto-gf" id="tipo-grupo-familiar">',
 	       		'#markup'=>'<span><strong>TIPO DE GRUPO FAMILIAR: </strong>'.$grupo_familiar[0]->tipo_grupo_familiar.'</span>',
 	        	'#suffix'=>'</div>',
   			);
 
-		    $form['socios']['socio']['panel_socio']['grupo_familiar']['listado_gf']= array(    
+		    $form['socios']['socio']['panel_socio']['grupo_familiar']['listado_gf']= array(
 		    	'#markup' => get_listado_grupo_familiar_markup($grupo_familiar),
 		    );
   		}
-  		
+
 
   		//PESTAÑA ACTIVIDADES
-  		$form['socios']['socio']['panel_socio']['actividades']= array(    
+  		$form['socios']['socio']['panel_socio']['actividades']= array(
 			'#type'=>'fieldset',
 			'#title'=>t('ACTIVIDADES'),
   		);
 
   		//PESTAÑA SERVICIOS
-  		$form['socios']['socio']['panel_socio']['servicios']= array(    
+  		$form['socios']['socio']['panel_socio']['servicios']= array(
 			'#type'=>'fieldset',
 			'#title'=>t('SERVICIOS'),
   		);
@@ -239,13 +240,13 @@ function datos_socio_form($form, &$form_state)
   		//PESTAÑA CUENTA CORRIENTE
   		if(($socio_seleccionado->tipo_socio_id != 2))
   		{
-	  		$form['socios']['socio']['panel_socio']['cuenta_corriente']= array(    
+	  		$form['socios']['socio']['panel_socio']['cuenta_corriente']= array(
 				'#type'=>'fieldset',
 				'#title'=>t('CUENTA CORRIENTE'),
 	  		);
 
 	  		$cuenta_corriente = get_estado_cta_cte($socio_seleccionado->id_socio);
-	  		$form['socios']['socio']['panel_socio']['cuenta_corriente']['listado_cta_cte']= array(    
+	  		$form['socios']['socio']['panel_socio']['cuenta_corriente']['listado_cta_cte']= array(
 		    	'#markup' => get_listado_cuenta_corriente_markup($cuenta_corriente),
 			);
   		}
@@ -261,39 +262,39 @@ function datos_socio_form($form, &$form_state)
 
 function datos_socio_form_submit($form, &$form_state)
 {
-	
+
 }
 
 function datos_socio_volver_submit($form, &$form_state)
 {
-	$retorno = array($_SESSION['retorno']);  
+	$retorno = array($_SESSION['retorno']);
 	unset($_SESSION['retorno']);
 
 	if($retorno[0] == 'socios/datos_socio_ret')
 	{
 		$form_state['redirect'] = array('socios/datos_socio',array('query' => array('id'=>$_GET['ret'])));
-	}  	
+	}
   	else
   	{
   		if(isset($_SESSION['retorno_params']))
-		{  	
+		{
 		  array_push($retorno, $_SESSION['retorno_params']);
 		  unset($_SESSION['retorno_params']);
 		}
 	    //drupal_set_message('<pre>'.print_r($retorno, true).'</pre>');
-	    $form_state['redirect'] = $retorno;		
+	    $form_state['redirect'] = $retorno;
   	}
-  
+
 }
 
 function get_listado_grupo_familiar_markup($grupo_familiar)
 {
   $grupo_familiar_mostrar = array();
-  
-  for ($i=0;$i<count($grupo_familiar);$i++) {   
+
+  for ($i=0;$i<count($grupo_familiar);$i++) {
 	//buscamos el tipo de estado para ver si no es de tipo baja
-	$tipo_estado = get_tipo_estado($grupo_familiar[$i]->estado_socio_id);     
-	
+	$tipo_estado = get_tipo_estado($grupo_familiar[$i]->estado_socio_id);
+
 	if($tipo_estado == 1)
 		$clase = 'en-baja';
 	else
@@ -301,54 +302,54 @@ function get_listado_grupo_familiar_markup($grupo_familiar)
 
     $grupo_familiar_mostrar[$i]['nro_socio'] = '<span class="'.$clase.'">'.$grupo_familiar[$i]->nro_socio_titular.'/'.$grupo_familiar[$i]->secuencia.'</span>';
     $grupo_familiar_mostrar[$i]['apellidos'] = '<span class="'.$clase.'">'.$grupo_familiar[$i]->apellidos.'</span>';
- 	$grupo_familiar_mostrar[$i]['nombres'] = '<span class="'.$clase.'">'.$grupo_familiar[$i]->nombres.'</span>';    
+ 	$grupo_familiar_mostrar[$i]['nombres'] = '<span class="'.$clase.'">'.$grupo_familiar[$i]->nombres.'</span>';
  	$grupo_familiar_mostrar[$i]['edad'] = '<span class="'.$clase.'">'.$grupo_familiar[$i]->edad.'</span>';
  	$grupo_familiar_mostrar[$i]['parentezco'] = '<span class="'.$clase.'">'.$grupo_familiar[$i]->parentezco.'</span>';
-  }  
- 
+  }
+
   $header = array('NUMERO DE SOCIO', 'APELLIDOS', 'NOMBRES', 'EDAD', 'PARENTEZCO');
-            
- 
- 
-  $output = theme('table', array('header' => $header, 
-                   'rows' => $grupo_familiar_mostrar, 
+
+
+
+  $output = theme('table', array('header' => $header,
+                   'rows' => $grupo_familiar_mostrar,
                    'attributes' => array('class' => array('tabla-grupo-familiar-socio'))
                   )
-           ); 
+           );
 
-  return $output;  
+  return $output;
 }
 
 function get_listado_cuenta_corriente_markup($cuenta_corriente)
 {
   $cuenta_corriente_mostrar = array();
-  
-  for ($i=0;$i<count($cuenta_corriente);$i++) {  
+
+  for ($i=0;$i<count($cuenta_corriente);$i++) {
   	if($cuenta_corriente[$i]->pagado == "SI")
   		$color = "green";
   	else
-  		$color = "red";      
+  		$color = "red";
 
     $cuenta_corriente_mostrar[$i]['fecha_emision'] = $cuenta_corriente[$i]->fecha_emision;
     $cuenta_corriente_mostrar[$i]['mes'] = $cuenta_corriente[$i]->mes;
  	$cuenta_corriente_mostrar[$i]['anio'] = $cuenta_corriente[$i]->anio;
  	$cuenta_corriente_mostrar[$i]['concepto'] = $cuenta_corriente[$i]->concepto;
  	$cuenta_corriente_mostrar[$i]['valor'] = $cuenta_corriente[$i]->valor;
- 	$cuenta_corriente_mostrar[$i]['pagado'] = array('data'=>'<span style="color:'.$color.';"><strong>'.$cuenta_corriente[$i]->pagado.'</strong></span>','width'=>'15%');	
- 	$cuenta_corriente_mostrar[$i]['fecha_pago'] = $cuenta_corriente[$i]->fecha_pago; 	
- 	$cuenta_corriente_mostrar[$i]['anulado'] = $cuenta_corriente[$i]->anulado; 	
-  }  
- 
+ 	$cuenta_corriente_mostrar[$i]['pagado'] = array('data'=>'<span style="color:'.$color.';"><strong>'.$cuenta_corriente[$i]->pagado.'</strong></span>','width'=>'15%');
+ 	$cuenta_corriente_mostrar[$i]['fecha_pago'] = $cuenta_corriente[$i]->fecha_pago;
+ 	$cuenta_corriente_mostrar[$i]['anulado'] = $cuenta_corriente[$i]->anulado;
+  }
+
   $header = array('FECHA DE EMISION', 'MES', 'AÑO', 'CONCEPTO', 'VALOR', 'PAGADO', 'FECHA DE PAGO', 'ANULADO');
-            
- 
- 
-  $output = theme('table', array('header' => $header, 
-                   'rows' => $cuenta_corriente_mostrar, 
+
+
+
+  $output = theme('table', array('header' => $header,
+                   'rows' => $cuenta_corriente_mostrar,
                    'attributes' => array('class' => array('tabla-cuenta-corriente-socio'))
                   )
-           ); 
+           );
 
-  return $output;  
+  return $output;
 }
 ?>

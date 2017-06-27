@@ -33,7 +33,7 @@ function gestionar_socios_form($form, &$form_state)
 		$params = $_SESSION[$formulario]['params'];
 		//drupal_set_message('<pre>'.print_r($params, true).'</pre>');
 		//buscamos los socios
-		$socios = get_socios($params['apellidos'], $params['nombres'], $params['nro_socio'], $params['estado'], $params['tipo_socio'], $params['categoria_socio']);
+		$socios = get_socios($params['apellidos'], $params['nombres'], $params['nro_socio'], $params['estado'], $params['tipo_socio'], $params['categoria_socio'], $params['tipo_doc'], $params['nro_doc']);
 
 	}
 	else
@@ -55,6 +55,19 @@ function gestionar_socios_form($form, &$form_state)
 	    '#type' => 'textfield',
 	    '#default_value'=>(!empty($params['nro_socio']) ? $params['nro_socio'] : ''),
 	    '#disabled'=>false,
+	);
+
+	$form['gestion_socios']['filtrar']['filtro_tipo_doc'] = array(
+		'#type'=>'select',
+		'#title'=>'TIPO DE DOCUMENTO',
+		'#options' => array('DNI'=>'DNI','LC'=>'LC','LE'=>'LE','DNI EXT.'=>'DNI EXT.'),
+    '#default_value'=>(isset($tipo_doc) ? $tipo_doc : null)
+	);
+
+	$form['gestion_socios']['filtrar']['filtro_nro_doc'] = array(
+		'#type'=>'textfield',
+		'#title'=>'NUMERO DE DOCUMENTO',
+    '#default_value'=>(isset($nro_doc) ? $nro_doc : null)
 	);
 
 	$form['gestion_socios']['filtrar']['filtro_nombres'] = array(
@@ -237,7 +250,8 @@ function gestionar_socios_form_validate($form, &$form_state)
 	&& empty($form_state['values']['filtro_nro_socio'])
 	&& empty($form_state['values']['filtro_estado'])
 	&& empty($form_state['values']['filtro_tipo_socio'])
-	&& empty($form_state['values']['filtro_categoria_socio']))
+	&& empty($form_state['values']['filtro_categoria_socio'])
+	&& empty($form_state['values']['filtro_nro_doc']))
 		form_set_error('filtrar', 'Debe ingresar algún filtro de busqueda');
 }
 
@@ -252,6 +266,8 @@ function gestionar_socios_form_submit($form, &$form_state)
     	$_SESSION[$formulario]['params']['apellidos'] = (!empty($form_state['values']['filtro_apellidos']) ? strtoupper($form_state['values']['filtro_apellidos']) : NULL);
     	$_SESSION[$formulario]['params']['nombres'] = (!empty($form_state['values']['filtro_nombres']) ? strtoupper($form_state['values']['filtro_nombres']) : NULL);
     	$_SESSION[$formulario]['params']['nro_socio'] = (!empty($form_state['values']['filtro_nro_socio']) ? $form_state['values']['filtro_nro_socio'] : NULL);
+			$_SESSION[$formulario]['params']['tipo_doc'] = (!empty($form_state['values']['filtro_tipo_doc']) ? $form_state['values']['filtro_tipo_doc'] : NULL);
+			$_SESSION[$formulario]['params']['nro_doc'] = (!empty($form_state['values']['filtro_nro_doc']) ? $form_state['values']['filtro_nro_doc'] : NULL);
     	$_SESSION[$formulario]['params']['estado'] = (($form_state['values']['filtro_estado'] != 0) ? $form_state['values']['filtro_estado'] : NULL);
     	$_SESSION[$formulario]['params']['tipo_socio'] = (($form_state['values']['filtro_tipo_socio'] != 0) ? $form_state['values']['filtro_tipo_socio'] : NULL);
     	$_SESSION[$formulario]['params']['categoria_socio'] = (($form_state['values']['filtro_categoria_socio'] != 0) ? $form_state['values']['filtro_categoria_socio'] : NULL);
@@ -286,7 +302,7 @@ function ver_socio_form_submit($form, &$form_state)
     	$_SESSION[$formulario]['params']['nombres'] = (!empty($form_state['values']['filtro_nombres']) ? strtoupper($form_state['values']['filtro_nombres']) : NULL);
     	$_SESSION[$formulario]['params']['nro_socio'] = (!empty($form_state['values']['filtro_nro_socio']) ? $form_state['values']['filtro_nro_socio'] : NULL);
     	$_SESSION[$formulario]['params']['estado'] = (($form_state['values']['filtro_estado'] != 0) ? $form_state['values']['filtro_estado'] : NULL);*/
-    	//unset($_SESSION[$formulario]['params']);
+    	unset($_SESSION[$formulario]['params']);
     	$form_state['redirect'] = array('socios/datos_socio',array('query' => array('id'=>$id_socio_seleccionado)));
 
 

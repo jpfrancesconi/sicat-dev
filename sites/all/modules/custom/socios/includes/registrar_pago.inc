@@ -22,16 +22,20 @@ function registrar_pagos_form($form, &$form_state)
 		drupal_get_path('module', 'socios') . '/js/anular_pagos.js',
 	);
 
-	/*$form['#attached']['js'] = array(
-		drupal_get_path('module', 'generico') . '/js/imprimir.js',
-	);*/
+	//seteamos el lugar al que se debe retrnar y los parametros
+  if(strpos($_SERVER['HTTP_REFERER'], 'cobranza'))
+	{
+		$array_retorno = parse_url($_SERVER['HTTP_REFERER']);
+		$_SESSION['retorno'] = 'socios/cobranza';
+		$_SESSION['retorno_params'] =array('query' =>get_params_url($_SERVER['HTTP_REFERER']));
+	}
 
 	//buscamos los roles del usuario logueado
-  	$roles = get_roles_usuario_logueado();
+	$roles = get_roles_usuario_logueado();
 
 	$disabled = false;
 
-	$form['pago'] = array(
+	/*$form['pago'] = array(
 		'#type'=>'fieldset',
 		'#title'=>'REGISTRO DE PAGO',
 		'#collapsible'=>true,
@@ -60,7 +64,7 @@ function registrar_pagos_form($form, &$form_state)
 		'#value'=>'BUSCAR',
 		'#validate'=>array('buscar_pago_validate'),
 		'#submit'=>array('buscar_pago_submit')
-	);
+	);*/
 
 	//$localidades = get_localidades_select();
 	if(isset($_GET['ns']))
@@ -92,24 +96,31 @@ function registrar_pagos_form($form, &$form_state)
 		//buscamos el socio
 		$socio = get_socio_por_tipo_nro_doc($_GET['td'], $_GET['nd']);
 	}
+	else if(isset($_GET['id_s']))
+	{
+		$form['id_socio'] = array(
+			'#type'=>'hidden',
+			'#value'=>$_GET['id_s']
+		);
+		//buscamos el socio
+		$socio = get_socio_por_id($_GET['id_s']);
+	}
 
 	//si se encontro el socio buscado se mustran los datos y lo que tiene por pagar
-    if(isset($socio) && !empty($socio))
-    {
-    	//creamos un fieldset que contiene los datos del socio
-    	$form['datos_socio'] = array(
-    		'#type'=>'fieldset',
-    		'#title'=>'DATOS DEL SOCIO'
-    	);
-    	//vemos si el socio es titular o socio unico
-		//sino debemos buscar el titular y su cuenta corriente
+  if(isset($socio) && !empty($socio))
+  {
+  	//creamos un fieldset que contiene los datos del socio
+  	$form['datos_socio'] = array(
+  		'#type'=>'fieldset',
+  		'#title'=>'DATOS DEL SOCIO'
+  	);
+  	//vemos si el socio es titular o socio unico
+		//si es miembro de flia debemos buscar el titular y su cuenta corriente
 		if($socio->tipo_socio_id == 2)
 		{
 			$grupo_familiar = get_grupo_familiar($socio->id_socio);
-			$socio->nro_socio = $grupo_familiar->nro_socio_titular;
-			//TODO: SI CAMBIA NRO_SOCIO_TITULAR POR ID_SOCIO_TITULAR CAMBIAR ACA
-			$socio_titular_familia = get_socio_por_nro_socio($grupo_familiar->nro_socio_titular);
-			//drupal_set_message('<pre>'.print_r($socio_titular_familia, true).'</pre>');
+			//TODO: SI CAMBIA NRO_SOCIO_TITULAR POR ID_SOCIO_TITULAR CAMBIAR ACA*/
+			$socio_titular_familia = get_socio_por_nro_socio($socio->nro_socio);
 			//dependiendo de la forma de pago los datos que vamos a mostrar
 			//se usa un string que se adiciono al markup  donde se muestran los datos del titualar
 			//comienza siendo vacio
@@ -148,7 +159,7 @@ function registrar_pagos_form($form, &$form_state)
 			$form['datos_socio']['socio'] = array(
     		'#markup' =>'<div id="rp-datos-socio-mf">
     						<div class="rp-socio" id="cabecera-socio"><h2>DATOS DEL SOCIO MIEMBRO DE FAMILIA</h2></div>
-    						<div class="rp-socio" id="rp-nro-socio"><strong>NUMERO DE SOCIO: </strong>'.$socio_titular_familia->nro_socio.'/'.$socio->secuencia.'</div>
+    						<div class="rp-socio" id="rp-nro-socio"><strong>NUMERO DE SOCIO: </strong>'.$socio->nro_socio.'/'.$socio->secuencia.'</div>
     						<div class="rp-socio" id="rp-apellidos"><strong>APELLIDOS: </strong>'.$socio->apellidos.'</div>
     						<div class="rp-socio" id="rp-nombres"><strong>NOMBRES: </strong>'.$socio->nombres.'</div>
     						<div class="rp-socio" id="rp-tipo-socio"><strong>TIPO DE SOCIO: </strong>'.$socio->tipo_socio.'</div>
@@ -290,7 +301,6 @@ function registrar_pagos_form($form, &$form_state)
 			$opciones[$id_cta_cte_item] = $opcion;
 		}
 
-
  		//se dispone de un select de cobrador para seleccionar el cobrador que corresponde el pago
  		$cobradores = get_cobradores_club_select(true);
 		$form['datos_pago']['personal'] = array(
@@ -317,9 +327,12 @@ function registrar_pagos_form($form, &$form_state)
 			'#submit'=>array('registrar_pagos_form_submit')
 		);
 
-		/*$form['datos_pago']['imprimir'] = array(
-			'#markup'=>'<div id="imprimir"><a href="#" onclick="PrintElem(\'listado-pagos-socio\')">IMPRIMIR</a></div>',
-		);*/
+		$form['plan_pago']['volver'] = array(
+			'#type'=>'submit',
+			'#value'=>'VOLVER',
+			'#limit_validation_errors'=>array(),
+			'#submit'=>array('registrar_pago_socio_volver_form'),
+		);
 
 		if(es_usr_secretaria_control($roles))
 		{
@@ -383,6 +396,19 @@ function registrar_pagos_form($form, &$form_state)
 	return $form;
 }
 
+function registrar_pago_socio_volver_form($form, &$form_state)
+{
+  $retorno = array($_SESSION['retorno']);
+  unset($_SESSION['retorno']);
+  if(isset($_SESSION['retorno_params']))
+  {
+    array_push($retorno, $_SESSION['retorno_params']);
+    unset($_SESSION['retorno_params']);
+  }
+  //drupal_set_message('<pre>'.print_r($retorno, true).'</pre>');
+  $form_state['redirect'] = $retorno;
+}
+
 function buscar_pago_validate($form, &$form_state)
 {
 	if(!empty($form_state['values']['f_nro_doc']) && !is_numeric($form_state['values']['f_nro_doc'])){
@@ -432,7 +458,7 @@ function registrar_pagos_form_submit($form, &$form_state)
 {
 	$uid = $GLOBALS['user']->uid;
 	$fecha_pago = date('Y').'-'.date('m').'-'.date('d');
-	//drupal_set_message('<pre>'.print_r($form_state['values'], true).'</pre>');
+	//drupal_set_message('<pre>'.print_r($form['datos_pago']['listado_pago']['#options'], true).'</pre>');
 	$transaction = db_transaction();
 	try
 	{
@@ -441,6 +467,31 @@ function registrar_pagos_form_submit($form, &$form_state)
 		$_SESSION['registrar_pago']['personal_id'] = $cobro_id;
 		//recorremos el listado mientras no sea 0
 		$listado_pago = $form_state['values']['listado_pago'];
+		//guardamos en sesion los ids de los datos necesarios para el pago
+
+		//generamos el recibo
+		$id_recibo = db_insert('io_recibo')
+		->fields(array('fecha_emision'=>$fecha_pago,
+									 'personal_id'=>$cobro_id,
+									 'mes'=>date('m'),
+									 'anio'=>date('Y'),
+									 'tipo_recibo_id'=>1,
+									 'usuario_alta'=>$uid,
+									 'usuario_mod'=>$uid
+		))
+		->execute();
+
+		//guardamos el id del recibo generado para ser impreso
+		$_SESSION['id_recibo'] = $id_recibo;
+
+		//guardamos el recibo en estado emitido
+		db_insert('io_rec_est_rec')
+		->fields(array('recibo_id'=>$id_recibo,
+									 'estado_recibo_id'=>1,
+									 'usuario_alta'=>$uid,
+									 'usuario_mod'=>$uid))
+		->execute();
+
 		foreach ($listado_pago as $item) {
 			if($item == 0)
 				break;
@@ -453,13 +504,27 @@ function registrar_pagos_form_submit($form, &$form_state)
 			))
 			->condition('id_cta_cte_item',$item,'=')
 			->execute();
-			$mensaje = 'SE REGISTRO CORRECTAMENTE EL PAGO';
-
-			drupal_set_message($mensaje);
-			$form_state['redirect'] = array('socios/registrar_pago');
-
+			//guardamos el item pagado en session que será usado al momento de imprimir
+			//array_push($_SESSION['item_pagado'], $item);
+			//recuperamos el item de cta cte para poder armar el item del recibo
+			$item_cta_cte = get_datos_socio_pago_por_item_cc($item);
+			//generamos los items para el recibo
+			db_insert('io_recibo_item')
+			->fields(array('fecha'=>$fecha_pago,
+										 'periodo'=>$item_cta_cte->mes.$item_cta_cte->anio,
+									 	 'concepto'=>$item_cta_cte->concepto,
+									 	 'observacion'=>$item_cta_cte->cate_tgf,
+								 		 'importe'=>$item_cta_cte->valor,
+									   'cta_cte_item_id'=>$item,
+									   'recibo_id'=>$id_recibo,
+									   'usuario_alta'=>$uid,
+									   'usuario_mod'=>$uid))
+			->execute();
 		}
 
+		$mensaje = 'SE REGISTRO CORRECTAMENTE EL PAGO';
+		drupal_set_message($mensaje);
+		$form_state['redirect'] = array('socios/registrar_pago/imprimir');
 		unset($transaction);
 	}
 	catch (Exception $e) {
@@ -536,5 +601,4 @@ function ajax_anular_callback($form, &$form_state)
 
 	return $form['datos_pago'];
 }
-
 ?>

@@ -1,0 +1,52 @@
+div#wait {
+    position: absolute;
+    display: none;
+    width: 120vw;
+    height: 120vh;
+    left: -20vw;
+    top: -31vh;
+    background-color: rgba(255, 0, 0, 0.21);
+}
+
+div#loading-wrapper {
+    position: relative;
+    padding-top: 50vh;
+    display: block;
+    width: 100%;
+    height: 50px;
+}
+
+div#loading-sub-wrapper {
+  margin: 0 auto;
+  display: block;
+  padding: 50px;
+  background-color: red;
+  width: 450px;
+}
+
+img#loading-gif {
+    margin: 0 auto;
+    display: block;
+}
+
+span#texto-gl {
+    text-align: center;
+    margin: 0 auto;
+    display: block;
+    padding-top: 10px;
+    font-size: 1.4em;
+    color: #FFF;
+  }
+
+div#texto-msj-resultado {
+  border: 1px solid #bbee77;
+  border-radius: 3px;
+  padding: 10px;
+  background: #f8fff0;
+  font-weight: 600;
+}
+
+div#msj-resultado
+{
+  display: none;
+}
