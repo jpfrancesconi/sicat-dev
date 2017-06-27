@@ -1189,11 +1189,25 @@ function get_items_cta_cte_por_recibo($id_recibo)
 //genera la liquidacion correspondiente a un mes y a un año
 function generar_liquidacion_mensual($mes, $anio)
 {
+	if($mes == 1)
+	{
+		$mes_ant = 12;
+		$anio_ant = $anio-1;
+	}
+	else {
+		$mes_ant = $mes-1;
+		$anio_ant = $anio;
+	}
 	//primero debemos validar que no exista una liquidacion generada para este mismo periodo
 	if(existe_liquidacion($mes, $anio))
 	{
 		//si existe retornaremos un valor 1 que indicara que ya existe
 		$resultado_liquidacion = 1;
+	}
+	else if(!existe_liquidacion($mes_ant, $anio_ant))
+	{
+		//si existe retornaremos un valor 1 que indicara que ya existe
+		$resultado_liquidacion = 2;
 	}
 	else {
 		//llamamos al procedimiento almacenado que genera la liquidacion de todo el mes
@@ -1207,7 +1221,7 @@ function generar_liquidacion_mensual($mes, $anio)
 function existe_liquidacion($mes, $anio)
 {
 	//revisamos en la tabla movimiento si existe la liquidacion genera para ese mes y año
-	$movimiento = db_query('SELECT count(*) AS cant_movimientos FROM io_movimiento WHERE anio = :anio AND mes = :mes',array(':anio' => $anio, ':mes' => $mes))->fetchObject();
+	$movimiento = db_query('SELECT count(*) AS cant_movimientos FROM io_movimiento WHERE anio = :anio AND mes = :mes AND MOV_GEN = 1',array(':anio' => $anio, ':mes' => $mes))->fetchObject();
 
 	//si la cantidad de movimientos retornada por la consulta es mayor a 0 significa que existe ya un movimiento para ese mes y año
 	if($movimiento->cant_movimientos > 0)
@@ -1218,6 +1232,7 @@ function existe_liquidacion($mes, $anio)
 		return false;
 	}
 }
+
 
 function get_id_socio_por_doc($tipo_doc, $nro_doc)
 {

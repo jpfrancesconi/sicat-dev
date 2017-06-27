@@ -68,6 +68,7 @@ function generar_liquidacion_form($form, &$form_state)
 
 function generar_liquidacion_validate($form, &$form_state)
 {
+
 }
 
 function generar_liquidacion_submit($form, &$form_state)

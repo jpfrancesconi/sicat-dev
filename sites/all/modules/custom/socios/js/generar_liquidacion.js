@@ -16,13 +16,27 @@
            success: function(res) {
              $("#wait").css("display", "none");
              var mensaje = '';
-             alert(res);
+
              if(res == 0)
-               mensaje='SE GENERÓ LA LIQUIDACION PARA EL PERIOD\nMES: '+paramMes+'AÑO:'+paramAnio+'\nCORRECTAMENTE!.';
+             {
+               $("#texto-msj-resultado").css({"background":"rgba(205, 10, 10, 0.11)", "border":"1px solid #cd0a0a"});
+               mensaje='SE GENERÓ LA LIQUIDACION PARA EL PERIODO MES: '+paramMes+' AÑO:'+paramAnio+' CORRECTAMENTE!.';
+             }
              else if(res == 1)
-               mensaje='LA LIQUIDACION PARA EL PERIODO\nMES: '+paramMes+'\nAÑO:'+paramAnio+'\nYA EXISTE.';
+             {
+               $("#texto-msj-resultado").css({"background":"rgba(205, 10, 10, 0.11)", "border":"1px solid #cd0a0a"});
+               mensaje='LA LIQUIDACION PARA EL PERIODO MES: '+paramMes+' AÑO:'+paramAnio+' YA EXISTE.';
+             }
+             else if(res == 2)
+             {
+               $("#texto-msj-resultado").css({"background":"rgba(205, 10, 10, 0.11)", "border":"1px solid #cd0a0a"});
+               mensaje='LA LIQUIDACION PARA EL PERIODO MES: '+paramMes+' AÑO:'+paramAnio+' NO SE HA GENERADO YA QUE NO EXISTE LIQUIDACIÓN GENERADA PRA EL PERIODO ANTERIOR.';
+             }
              else
-               mensaje='OCURRIÓ UN ERROR LA LIQUIDACION PARA EL PERIODO\nMES: '+paramMes+'\nAÑO:'+paramAnio+'\nNO SE HA GENERADO.';
+             {
+               mensaje='SE GENERÓ LA LIQUIDACION PARA EL PERIODO MES: '+paramMes+' AÑO:'+paramAnio+' CORRECTAMENTE!.';
+             }
+               //mensaje='OCURRIÓ UN ERROR LA LIQUIDACION PARA EL PERIODO MES: '+paramMes+' AÑO:'+paramAnio+' NO SE HA GENERADO.';
              $("#msj-resultado").css("display", "block");
              $("#texto-msj-resultado span").text(mensaje);
            }

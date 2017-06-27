@@ -49,4 +49,19 @@ div#texto-msj-resultado {
 div#msj-resultado
 {
   display: none;
+  margin-top: 20px;
+}
+
+.btn-generar {
+    padding: 8px 16px;
+    color: white;
+    background: #19A9E5;
+    -khtml-border-radius: 20px;
+    -moz-border-radius: 20px;
+    -webkit-border-radius: 20px;
+    border-radius: 20px;
+    border: 0;
+    line-height: 100%;
+    display: inline-block;
+    cursor: pointer;
 }
