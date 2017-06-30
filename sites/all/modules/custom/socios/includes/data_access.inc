@@ -448,7 +448,7 @@ function get_cobradores_club_select($seleccionar=false)
 //obtiene todos las formas de pago de un socio para mostrarlos en un componente select
 function get_formas_pago_select()
 {
-	$formas_pago = array(1=>'COBRADOR', 2=>'DEBITO AUTOMÁTICO', 3=>'MOSTRADOR');
+	$formas_pago = array(1=>'COBRADOR', 2=>'DEBITO AUTOMÁTICO', 3=>'MOSTRADOR', 4=>'TARJETA DE CREDITO', 5=>'TARJETA DE DEBITO');
 
 	return $formas_pago;
 }
