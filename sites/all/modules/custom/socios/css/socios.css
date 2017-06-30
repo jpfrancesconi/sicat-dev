@@ -254,3 +254,16 @@ input#edit-nro-doc {
 span.deuda-mes {
     margin-right: 19px;
 }
+
+#imprimir-cuenta-socio-form a {
+    padding: 8px 16px;
+    color: white;
+    background: #19A9E5;
+    -khtml-border-radius: 20px;
+    -moz-border-radius: 20px;
+    -webkit-border-radius: 20px;
+    border-radius: 20px;
+    border: 0;
+    line-height: 100%;
+    display: inline-block;
+}

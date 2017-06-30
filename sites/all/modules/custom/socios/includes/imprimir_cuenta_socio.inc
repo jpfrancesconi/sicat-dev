@@ -34,7 +34,10 @@ function imprimir_cuenta_socio_form($form, &$form_state)
 
   //recuperamos de session los items pagados
   //$id_items_cta_cte = $_SESSION['item_pagado'];
+  if(isset($_SESSION['id_recibo']))
+  {
   $id_recibo = $_SESSION['id_recibo'];
+
   //limpiamos los datos de session
   //unset($_SESSION['item_pagado']);
   unset($_SESSION['id_recibo']);
@@ -82,10 +85,23 @@ function imprimir_cuenta_socio_form($form, &$form_state)
 
   $form['resumen_pago']['volver'] = array(
     '#type'=>'submit',
-    '#value'=>'VOLVER',
+    '#value'=>'FINALIZAR',
     '#limit_validation_errors'=>array(),
-    '#submit'=>array('imprimir_cuenta_socio_volver_form'),
+    '#submit'=>array('imprimir_cuenta_socio_volver_2_form'),
   );
+  }
+  else {
+    //drupal_set_message(t('NO SE PUDO RECUPERAR EL RECIBO'), 'error', FALSE);
+
+    $form['resumen_pago']['volver'] = array(
+      '#type'=>'submit',
+      '#value'=>'FINALIZAR',
+      '#limit_validation_errors'=>array(),
+      '#submit'=>array('imprimir_cuenta_socio_volver_2_form'),
+    );
+  }
+
+
 
   return $form;
 }
@@ -111,4 +127,10 @@ function imprimir_cuenta_socio_volver_form($form, &$form_state)
   }
   //drupal_set_message('<pre>'.print_r($retorno, true).'</pre>');
   $form_state['redirect'] = $retorno;
+}
+
+function imprimir_cuenta_socio_volver_2_form($form, &$form_state)
+{
+  //drupal_set_message('<pre>'.print_r($retorno, true).'</pre>');
+  $form_state['redirect'] = 'socios/cobranza';
 }

@@ -117,13 +117,15 @@ function ingreso_socio_form($form, &$form_state)
 	if(!is_null($apellidos) || !is_null($nombres) || !is_null($nro_socio) || !is_null($tipo_doc) || !is_null($nro_doc))
 	{
 		//buscamos
+		drupal_set_message('<pre>'.print_r($apellidos,true).'</pre>');
 		$socios = get_socios($apellidos, $nombres, $nro_socio,NULL, NULL, NULL, $tipo_doc, $nro_doc);
 
 		//guardamos en socios_temp el resultado del fectchAll y vemo si hay solo un socio
-
+		drupal_set_message('<pre>'.print_r($socios,true).'</pre>');
 		//vemos si solo hay un socio en el resultado
 		if($socios->rowCount() == 1)
 		{
+
 			//en el caso de que solo haya un socio redireccionamos a ver los datos del socios
 			//tomamos la url de base y le agregamos la ruta a donde redireccionamos
 			//sacamos el socio

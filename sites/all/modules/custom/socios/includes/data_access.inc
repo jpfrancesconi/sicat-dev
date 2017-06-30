@@ -14,8 +14,8 @@ function get_socios($apellidos=NULL, $nombres=NULL, $nro_socio=NULL,$estado=NULL
 	$select = db_select('io_socio', 'soc');
 	$select->join('io_persona', 'per', 'soc.persona_id = per.id_persona');
 	$select->join('io_estado_socio', 'est', 'soc.estado_socio_id = est.id_estado_socio');
-	$select->join('io_personal', 'personal', 'soc.personal_id = personal.id_personal');
-	$select->join('io_persona', 'per_personal', 'per_personal.id_persona = personal.persona_id');
+	$select->leftJoin('io_personal', 'personal', 'soc.personal_id = personal.id_personal');
+	$select->leftJoin('io_persona', 'per_personal', 'per_personal.id_persona = personal.persona_id');
 	$select->leftJoin('io_categoria_socio', 'cate', 'soc.categoria_socio_id = cate.id_categoria_socio');
 	$select->leftJoin('io_tipo_socio', 'tip', 'soc.tipo_socio_id = tip.id_tipo_socio');
 	$select->leftJoin('io_grupo_familiar_socio', 'gfs', 'soc.id_socio = gfs.socio_id');
