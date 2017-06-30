@@ -279,7 +279,7 @@ function socios_menu()
      'access arguments' => array('access content'),
   );//imprimir_cuenta_socio.inc
   $items['socios/ingreso_socio/socio'] = array(
-    'title' => 'SOCIO',
+    'title' => 'INGRESO DE SOCIO',
     'page callback' => 'drupal_get_form',
     'page arguments' => array('ingreso_socio_datos_socio_form'),
     'access arguments' => array('acceso a ingreso socio - socio'),

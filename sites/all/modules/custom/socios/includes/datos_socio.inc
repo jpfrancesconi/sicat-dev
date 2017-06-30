@@ -143,6 +143,14 @@ function datos_socio_form($form, &$form_state)
 	        '#suffix'=>'</div>',
   		);
 
+			$cobrador = $socio_seleccionado->apellido_personal;
+
+			$form['socios']['socio']['panel_socio']['datos_personales']['cobrador']= array(
+  			'#prefix'=>'<div class="io-texto texto-dp" id="cobrador">',
+	       	'#markup'=>'<span><strong>COBRADOR: </strong>'.$cobrador.'</span>',
+	        '#suffix'=>'</div>',
+  		);
+
   		$form['socios']['socio']['panel_socio']['datos_personales']['estado_socio']= array(
   			'#prefix'=>'<div class="io-texto texto-dp" id="estado-socio">',
 	       	'#markup'=>'<span><strong>ESTADO: </strong>'.$socio_seleccionado->estado.'</span>',

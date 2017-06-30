@@ -41,6 +41,7 @@ function imprimir_cuenta_socio_form($form, &$form_state)
 
   //buscamos los items de cuenta corriente vinculados al recibo
   $items_pagados = get_items_cta_cte_por_recibo($id_recibo);
+  //drupal_set_message('<pre>'.print_r($items_pagados,true).'</pre>');
   //guardamos en este array los datos de pagos realizados pensando en lo necesario para imprimir
   $pagos = array();
   //sumaremos el total a pagado por el socio
@@ -48,11 +49,12 @@ function imprimir_cuenta_socio_form($form, &$form_state)
   //Recuperamos los datos del socio y de cada item de ceunta corriente pagados
   $i=0;
   foreach ($items_pagados as $item_pagado) {
+
     $datos_socio_pago = get_datos_socio_pago_por_item_cc($item_pagado->id_cta_cte_item);
     //vamos sumando en la variable total el valor de cada concepto que se pagó
-    $total+=$datos_socio_pago->valor;
+    $total+=$item_pagado->importe_recibo;
     //le damos el formato correcto al valor de la cuota
-    $datos_socio_pago->valor = number_format($datos_socio_pago->valor, 2, ".", "");
+    $datos_socio_pago->valor = number_format($item_pagado->importe_recibo, 2, ".", "");
 
     $pagos[$i] = array('fecha_emision'=>$datos_socio_pago->fecha_emision, 'mes'=>$datos_socio_pago->mes, 'anio'=>$datos_socio_pago->anio, 'concepto'=>$datos_socio_pago->concepto, 'valor'=>$datos_socio_pago->valor);
     $i++;

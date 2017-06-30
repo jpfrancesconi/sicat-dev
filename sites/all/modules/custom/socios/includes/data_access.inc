@@ -14,6 +14,8 @@ function get_socios($apellidos=NULL, $nombres=NULL, $nro_socio=NULL,$estado=NULL
 	$select = db_select('io_socio', 'soc');
 	$select->join('io_persona', 'per', 'soc.persona_id = per.id_persona');
 	$select->join('io_estado_socio', 'est', 'soc.estado_socio_id = est.id_estado_socio');
+	$select->join('io_personal', 'personal', 'soc.personal_id = personal.id_personal');
+	$select->join('io_persona', 'per_personal', 'per_personal.id_persona = personal.persona_id');
 	$select->leftJoin('io_categoria_socio', 'cate', 'soc.categoria_socio_id = cate.id_categoria_socio');
 	$select->leftJoin('io_tipo_socio', 'tip', 'soc.tipo_socio_id = tip.id_tipo_socio');
 	$select->leftJoin('io_grupo_familiar_socio', 'gfs', 'soc.id_socio = gfs.socio_id');
@@ -56,13 +58,14 @@ function get_socios($apellidos=NULL, $nombres=NULL, $nro_socio=NULL,$estado=NULL
 		$select->condition('cate.id_categoria_socio', $categoria_socio, '=');
 	$select->addExpression('IF(tip.id_tipo_socio = 2, soc.nro_adherente , soc.nro_socio)', 'nro_socio');
 	$select->addExpression('date_format(soc.fecha_ingreso, \'%d/%m/%Y\')','fecha_ingreso');
+	$select->addExpression('per_personal.apellidos','apellido_personal');
 	$select->orderBy('nro_socio', 'asc');
 	$select->orderBy('soc.secuencia', 'asc');
 	//$select->limit($limit);
 	# ejecutamos la consulta
 	$socios = $select->execute();
 
-	//drupal_set_message('<pre>'.print_r($SELECT, true).'</pre>');
+	//drupal_set_message('<pre>'.print_r($socios, true).'</pre>');
 	return $socios;
 }
 
@@ -72,12 +75,15 @@ function get_socios_gf($id_grupo_familiar)
 	$select = db_select('io_socio', 'soc');
 	$select->join('io_persona', 'per', 'soc.persona_id = per.id_persona');
 	$select->join('io_estado_socio', 'est', 'soc.estado_socio_id = est.id_estado_socio');
+	$select->join('io_personal', 'personal', 'soc.personal_id = personal.id_personal');
+	$select->join('io_persona', 'per_personal', 'per_personal.id_persona = personal.persona_id');
 	$select->leftJoin('io_categoria_socio', 'cate', 'soc.categoria_socio_id = cate.id_categoria_socio');
 	$select->leftJoin('io_tipo_socio', 'tip', 'soc.tipo_socio_id = tip.id_tipo_socio');
 	$select->leftJoin('io_grupo_familiar_socio', 'gfs', 'soc.id_socio = gfs.socio_id');
 	$select->leftJoin('io_grupo_familiar', 'gf', 'gfs.grupo_familiar_id = gf.id_grupo_familiar');
 	$select->fields('soc', array('id_socio', 'secuencia'));
 	$select->fields('per', array('apellidos', 'nombres', 'tipo_doc', 'nro_doc'));
+	$select->fields('per_personal', array('apellidos as apellido_personal'));
 	$select->addField('est', 'nombre', 'estado');
 	$select->addField('tip', 'descripcion', 'tipo_socio');
 	$select->addField('tip', 'id_tipo_socio', 'id_tipo_socio');
@@ -134,7 +140,9 @@ function get_socio_por_id($id_socio)
 	prov.ID_PROVINCIA as id_provincia,
 	per.id_persona,
 	per.uri_foto,
-	fp.nombre as forma_pago_nombre
+	fp.nombre as forma_pago_nombre,
+	per_personal.apellidos as apellido_personal,
+	per_personal.nombres as nombre_personal
 	FROM io_socio soc
 	LEFT JOIN io_persona per on per.id_persona = soc.persona_id
 	LEFT JOIN io_estado_socio est on est.id_estado_socio = soc.estado_socio_id
@@ -143,6 +151,8 @@ function get_socio_por_id($id_socio)
 	LEFT JOIN io_forma_pago fp on soc.forma_pago_id = fp.id_forma_pago
 	LEFT JOIN io_localidad loc on loc.ID_LOCALIDAD = per.localidad_id
 	LEFT JOIN io_provincia prov on prov.ID_PROVINCIA = loc.PROVINCIA_ID
+	LEFT JOIN io_personal personal on personal.id_personal = soc.personal_id
+	LEFT JOIN io_persona per_personal on per_personal.id_persona = personal.persona_id
 	WHERE soc.id_socio = :id_socio', array(':id_socio' => $id_socio ))->fetchObject();
 
 	//drupal_set_message('<pre>'.print_r($socio, true).'</pre>');
@@ -186,7 +196,9 @@ function get_socio_por_nro_socio($nro_socio)
 	prov.ID_PROVINCIA as id_provincia,
 	per.id_persona,
 	per.uri_foto,
-	fp.nombre as forma_pago_nombre
+	fp.nombre as forma_pago_nombre,
+	per_personal.apellidos as apellido_personal,
+	per_personal.nombres as nombre_personal
 	FROM io_socio soc
 	LEFT JOIN io_persona per on per.id_persona = soc.persona_id
 	LEFT JOIN io_estado_socio est on est.id_estado_socio = soc.estado_socio_id
@@ -195,6 +207,8 @@ function get_socio_por_nro_socio($nro_socio)
 	LEFT JOIN io_forma_pago fp on soc.forma_pago_id = fp.id_forma_pago
 	LEFT JOIN io_localidad loc on loc.ID_LOCALIDAD = per.localidad_id
 	LEFT JOIN io_provincia prov on prov.ID_PROVINCIA = loc.PROVINCIA_ID
+	LEFT JOIN io_personal personal on personal.id_personal = soc.personal_id
+	LEFT JOIN io_persona per_personal on per_personal.id_persona = personal.persona_id
 	WHERE (soc.nro_socio = :nro_socio or soc.nro_adherente = :nro_socio)
 	ORDER BY soc.secuencia ASC', array(':nro_socio' => $nro_socio ))->fetchObject();
 
@@ -238,7 +252,9 @@ function get_socio_por_tipo_nro_doc($tipo_doc, $nro_doc)
 	prov.ID_PROVINCIA as id_provincia,
 	per.id_persona,
 	per.uri_foto,
-	fp.nombre as forma_pago_nombre
+	fp.nombre as forma_pago_nombre,
+	per_personal.apellidos as apellido_personal,
+	per_personal.nombres as nombre_personal
 	FROM io_socio soc
 	LEFT JOIN io_persona per on per.id_persona = soc.persona_id
 	LEFT JOIN io_estado_socio est on est.id_estado_socio = soc.estado_socio_id
@@ -247,6 +263,8 @@ function get_socio_por_tipo_nro_doc($tipo_doc, $nro_doc)
 	LEFT JOIN io_forma_pago fp on soc.forma_pago_id = fp.id_forma_pago
 	LEFT JOIN io_localidad loc on loc.ID_LOCALIDAD = per.localidad_id
 	LEFT JOIN io_provincia prov on prov.ID_PROVINCIA = loc.PROVINCIA_ID
+	LEFT JOIN io_personal personal on personal.id_personal = soc.personal_id
+	LEFT JOIN io_persona per_personal on per_personal.id_persona = personal.persona_id
 	WHERE per.tipo_doc = :tipo_doc
 	AND per.nro_doc = :nro_doc', array(':tipo_doc' => $tipo_doc, ':nro_doc'=>$nro_doc ))->fetchObject();
 
@@ -900,7 +918,8 @@ function replicar_baja_a_grupo_familiar($id_socio, $id_estado_socio)
 	}
 }
 
-function consultar_deuda($id_socio, $tipo_socio_id)
+//esta funcion retornara la cantidad de cuotas sociales que tiene
+function consultar_deuda($id_socio, $tipo_socio_id, $concepto)
 {
 	//si el socio es titular de familia buscaremos la deuda para el tipo de grupo familiar del socio
 	if($tipo_socio_id == 3)
@@ -919,7 +938,8 @@ function consultar_deuda($id_socio, $tipo_socio_id)
 							where cci.pagado = 0
 							and cci.anulado = 0
 							and cci.refinanciado = 0
-							and soc.id_socio =:id_socio',array(':id_socio' => $id_socio))->fetchAll();
+							and con.id_concepto = :concepto
+							and soc.id_socio =:id_socio',array(':id_socio' => $id_socio, ':concepto'=>$concepto))->fetchAll();
 
 	}
 	else if($tipo_socio_id == 1)
@@ -933,7 +953,8 @@ function consultar_deuda($id_socio, $tipo_socio_id)
 							where cci.pagado = 0
 							and cci.anulado = 0
 							and cci.refinanciado = 0
-							and soc.id_socio =:id_socio',array(':id_socio' => $id_socio))->fetchAll();
+							and con.id_concepto = :concepto
+							and soc.id_socio =:id_socio',array(':id_socio' => $id_socio, ':concepto'=>$concepto))->fetchAll();
 	}
 	else
 	{
@@ -941,7 +962,28 @@ function consultar_deuda($id_socio, $tipo_socio_id)
 	}
 
 	if(isset($deuda) && !empty($deuda)){
-		//drupal_set_message('<pre>'.print_r($deuda, true).'</pre>');
+		//vamos a ver si lo que debe el socio corresponde al periodo actual o mayor al actual. En tales caso no seria considerado una deuda
+		//ya que aun no se ha vencido el mes
+		//guardamos la convinacion AÑO-MES actual
+		$periodo_actual = date("Y-n");
+		//guardamos la cantidad de reigstros retornados en la consulta ya que este array deuda podria ser modificado. Es decir le vamos a eliminar
+		//aquellos registros que no se consideren deuda.
+		$count = count($deuda);
+
+		//recorremos todo el array de deuda
+		for($i=0; $i < $count; $i++)
+		{
+			//sacamos del registro actual el periodo para ser comparado con el periodo actual
+			$periodo_comparar = date("Y-n", strtotime($deuda[$i]->mes.'/1/'.$deuda[$i]->anio));
+
+			//vemos si el periodo a comprar es mayor o igual al actual
+			if($periodo_comparar >= $periodo_actual)
+			{
+			  //en caso de que sea mayor o igual al periodo actual lo quitamos del array
+				unset($deuda[$i]);
+			}
+		}
+		//retormos la deuda....o lo que quedo de ella je!
 		return $deuda;
 
 	}
@@ -1168,7 +1210,8 @@ function get_items_cta_cte_por_recibo($id_recibo)
 	per.nombres,
 	per.direccion,
 	IF(soc.tipo_socio_id = 1, cs.nombre, tgf.nombre) as cate_tgf,
-	ts.descripcion as tipo_socio
+	ts.descripcion as tipo_socio,
+	rs_i.importe as importe_recibo
 	FROM io_cta_cte_item icc
 	INNER JOIN io_cta_cte cc on cc.id_cta_cte = icc.cta_cte_id
 	INNER JOIN io_concepto conc on conc.id_concepto = icc.concepto_id
@@ -1265,4 +1308,13 @@ function get_id_socio_por_nro_socio($nro_socio)
 		return null;
 	}
 }
+
+//retorna el id del socio si es titular o unico
+/*function es_titular_o_unico($nro_socio, $secuencia, $tipo_doc, $num_doc)
+{
+	if(!is_null($tipo_doc) && !is_null($num_doc))
+	{
+
+	}
+}*/
 ?>

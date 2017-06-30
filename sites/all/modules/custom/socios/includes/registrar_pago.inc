@@ -508,13 +508,15 @@ function registrar_pagos_form_submit($form, &$form_state)
 			//array_push($_SESSION['item_pagado'], $item);
 			//recuperamos el item de cta cte para poder armar el item del recibo
 			$item_cta_cte = get_datos_socio_pago_por_item_cc($item);
+			//buscamos el valor que se pago
+			$valor = $form['datos_pago']['listado_pago']['#options'][$item]['valor'];
 			//generamos los items para el recibo
 			db_insert('io_recibo_item')
 			->fields(array('fecha'=>$fecha_pago,
 										 'periodo'=>$item_cta_cte->mes.$item_cta_cte->anio,
 									 	 'concepto'=>$item_cta_cte->concepto,
 									 	 'observacion'=>$item_cta_cte->cate_tgf,
-								 		 'importe'=>$item_cta_cte->valor,
+								 		 'importe'=>$valor,
 									   'cta_cte_item_id'=>$item,
 									   'recibo_id'=>$id_recibo,
 									   'usuario_alta'=>$uid,
