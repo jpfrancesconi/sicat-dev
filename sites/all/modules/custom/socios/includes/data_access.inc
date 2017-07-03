@@ -64,7 +64,7 @@ function get_socios($apellidos=NULL, $nombres=NULL, $nro_socio=NULL,$estado=NULL
 	//$select->limit($limit);
 	# ejecutamos la consulta
 	$socios = $select->execute();
-
+ //
 	//drupal_set_message('<pre>'.print_r($socios, true).'</pre>');
 	return $socios;
 }
