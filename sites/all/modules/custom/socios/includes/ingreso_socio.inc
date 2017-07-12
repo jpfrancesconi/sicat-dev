@@ -177,6 +177,15 @@ function ingreso_socio_form($form, &$form_state)
 						$socio->categoria_socio = $grupo_familiar->nombre_tipo_grupo_familiar;
 				}
 
+				//vemos si el socio esta en estado tipo baja para pintarlo
+				//drupal_set_message('<pre>'.print_r($socio,true).'</pre>');
+				if(get_tipo_estado($socio->estado_socio_id))
+				{
+					$color = 'red';
+				}
+				else {
+					$color = 'green';
+				}
 				$fila_socio =
 				  array(
 				    'nro_socio'=> $socio->nro_socio.'/'.$socio->secuencia,
@@ -185,7 +194,7 @@ function ingreso_socio_form($form, &$form_state)
 				    'tipo_doc'=> $socio->tipo_doc,
 				    'nro_doc'=> $socio->nro_doc,
 				    'fecha_ingreso'=> $socio->fecha_ingreso,
-				    'estado'=> $socio->estado,
+				    'estado'=> '<span style="color:'.$color.';">'.$socio->estado.'</span>',
 				    'categoria_socio'=> $socio->categoria_socio,
 				    'tipo_socio'=> $socio->tipo_socio,
 				    //l('Ver', 'microcreditos/ver_observacion_carpeta', array('query' => array('id' => $carpeta['id_carpeta_personal']))),

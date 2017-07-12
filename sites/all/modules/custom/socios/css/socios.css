@@ -43,6 +43,7 @@ fieldset#edit-actividades,
 fieldset#edit-servicios,
 fieldset#edit-cuenta-corriente {
     top: 0;
+    max-height: 460px;
 }
 
 fieldset#edit-datos-personales .fieldset-wrapper,
@@ -254,6 +255,43 @@ input#edit-nro-doc {
 span.deuda-mes {
     margin-right: 19px;
 }
+
+.form-item.form-type-textfield.form-item-nro-socio {
+    float: left;
+    width: 10%;
+    margin-right: 20px;
+}
+
+.form-item.form-type-select.form-item-tipo-doc {
+    float: left;
+    width: 11.3%;
+}
+
+.form-item.form-type-textfield.form-item-nro-doc {
+    float: left;
+    width: 75%;
+}
+
+.form-item.form-type-textfield.form-item-apellidos {
+    float: left;
+    width: 20%;
+    margin-right: 20px;
+}
+
+.form-item.form-type-textfield.form-item-nombres {
+    float: left;
+    width: 75%;
+}
+
+.form-item.form-type-textfield.form-item-nombres input{
+  width: 30%;
+}
+
+div#listado-socios tbody{
+  font-weight: bold;
+}
+
+
 
 #imprimir-cuenta-socio-form a {
     padding: 8px 16px;

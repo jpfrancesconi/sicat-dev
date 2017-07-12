@@ -149,6 +149,16 @@ function gestionar_socios_form($form, &$form_state)
 		while ($socio = $socios->fetchObject())
 		{
 			$id_socio = $socio->id_socio;
+
+			//vemos si el socio esta en estado tipo baja para pintarlo
+			//drupal_set_message('<pre>'.print_r($socio,true).'</pre>');
+			if(get_tipo_estado($socio->estado_socio_id))
+			{
+				$color = 'red';
+			}
+			else {
+				$color = 'green';
+			}
 			//ver si el socio es miembro de familia y buscar el numero de socio del titular
 			/*if($socio->id_tipo_socio == 2)
 			{
@@ -180,7 +190,7 @@ function gestionar_socios_form($form, &$form_state)
 				'tipo_doc'=> $socio->tipo_doc,
 				'nro_doc'=> $socio->nro_doc,
 				'fecha_ingreso'=> $socio->fecha_ingreso,
-				'estado'=> $socio->estado,
+				'estado'=> '<span style="color:'.$color.';">'.$socio->estado.'</span>',
 				'categoria_socio'=> $socio->categoria_socio,
 				'tipo_socio'=> $socio->tipo_socio,
 				'cobrador'=> $socio->apellido_personal,

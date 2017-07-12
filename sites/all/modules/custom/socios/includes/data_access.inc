@@ -20,7 +20,7 @@ function get_socios($apellidos=NULL, $nombres=NULL, $nro_socio=NULL,$estado=NULL
 	$select->leftJoin('io_tipo_socio', 'tip', 'soc.tipo_socio_id = tip.id_tipo_socio');
 	$select->leftJoin('io_grupo_familiar_socio', 'gfs', 'soc.id_socio = gfs.socio_id');
 	$select->leftJoin('io_grupo_familiar', 'gf', 'gfs.grupo_familiar_id = gf.id_grupo_familiar');
-	$select->fields('soc', array('id_socio', 'secuencia'));
+	$select->fields('soc', array('id_socio', 'secuencia','estado_socio_id'));
 	$select->fields('per', array('apellidos', 'nombres', 'tipo_doc', 'nro_doc'));
 	$select->addField('est', 'nombre', 'estado');
 	$select->addField('tip', 'descripcion', 'tipo_socio');
@@ -446,9 +446,30 @@ function get_cobradores_club_select($seleccionar=false)
 }
 
 //obtiene todos las formas de pago de un socio para mostrarlos en un componente select
-function get_formas_pago_select()
+function get_formas_pago_select($seleccionar = false)
 {
-	$formas_pago = array(1=>'COBRADOR', 2=>'DEBITO AUTOMÁTICO', 3=>'MOSTRADOR', 4=>'TARJETA DE CREDITO', 5=>'TARJETA DE DEBITO');
+
+	$result = db_query('select fp.id_forma_pago, fp.nombre
+						from io_forma_pago as fp
+						where fp.activo = 1
+						')->fetchAll();
+
+	//drupal_set_message('<pre>'.print_r($consorcio, true).'</pre>');
+	if(empty($result[0]))
+		$formas_pago = null;
+	else
+	{
+		$formas_pago = array();
+		$row = array();
+
+		if($seleccionar)
+			array_push($formas_pago, '- Seleccionar -');
+
+		foreach($result as $record){
+			$row = (array)$record;
+			$formas_pago[$row['id_forma_pago']] = $row['nombre'];
+		}
+	}
 
 	return $formas_pago;
 }
@@ -894,7 +915,7 @@ function get_tipo_estado($id_estado)
 						FROM io_estado_socio est
 						WHERE est.id_estado_socio = :id_estado'
 						,array(':id_estado' => $id_estado))->fetchObject();
-
+	//drupal_set_message('Estado tipo baja: '.$estado->tipo_baja);
 	if(isset($estado->tipo_baja))
 		return $estado->tipo_baja;
 	else

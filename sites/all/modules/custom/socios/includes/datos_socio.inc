@@ -52,14 +52,26 @@ function datos_socio_form($form, &$form_state)
 		//buscamos el socio
 		$socio_seleccionado = get_socio_por_id($id_socio_seleccionado);
 		//drupal_set_message('<pre>'.print_r($socio_seleccionado,true).'</pre>');
-
+		//seteamos la bandera inconsistente_gf a falso. Esta bandera nos servira para notificar que el grupo familiar tiene alguna inconsistencia
+		//se utiliza mas abajo
+		$inconsistente_gf = false;
 		//si es miembro de familia tiene que tener el numero de socio de su titular
 		if($socio_seleccionado->tipo_socio_id == 2)
 		{
 			$grupo_familiar = get_grupo_familiar($socio_seleccionado->id_socio);
-			$socio_seleccionado->nro_socio = $grupo_familiar->nro_socio_titular;
-			//TODO: SI CAMBIA NRO_SOCIO_TITULAR POR ID_SOCIO_TITULAR CAMBIAR ACA
-			$socio_titular_familia = get_socio_por_nro_socio($grupo_familiar->nro_socio_titular);
+			//si no se encuentra el grupo familiar del socio se informará dicha situación
+			//para estot tambien usaremos una bandera que nos servira durante todo el formulario para estar informados de esta situacion
+			if(!empty($grupo_familiar))
+			{
+				$socio_seleccionado->nro_socio = $grupo_familiar->nro_socio_titular;
+				//TODO: SI CAMBIA NRO_SOCIO_TITULAR POR ID_SOCIO_TITULAR CAMBIAR ACA
+				$socio_titular_familia = get_socio_por_nro_socio($grupo_familiar->nro_socio_titular);
+			}
+			else {
+				drupal_set_message(t('EL SOCIO SE ENCUENTRA INCONSISTENTE'), 'warning', FALSE);
+				$inconsistente_gf = true;
+			}
+
 		}
 
 		$form['socios']['socio']['fs_apellido_nombre']= array(
@@ -170,14 +182,17 @@ function datos_socio_form($form, &$form_state)
 	        '#suffix'=>'</div>',
   		);
 
-  		//si es miembro de familia se perimite ir al socio titular de familia
+  		//si es miembro de familia se perimite ir al socio titular de familia y si no está inconsistente el grupo familiar
   		if($socio_seleccionado->tipo_socio_id == 2)
   		{
-  			$form['socios']['socio']['panel_socio']['datos_personales']['socio_titular']= array(
-  			'#prefix'=>'<div id="titular"><div>',
-	       	'#markup'=>'<span><strong>TITULAR DE FAMILIA: </strong></span>'.l($socio_titular_familia->nombres.' '.$socio_titular_familia->apellidos, 'socios/datos_socio', array('query' => array('id' => $socio_titular_familia->id_socio, 'ret'=>$socio_seleccionado->id_socio))),
-	        '#suffix'=>'</div></div>',
-  			);
+				if(!$inconsistente_gf)
+				{
+					$form['socios']['socio']['panel_socio']['datos_personales']['socio_titular']= array(
+	  			'#prefix'=>'<div id="titular"><div>',
+		       	'#markup'=>'<span><strong>TITULAR DE FAMILIA: </strong></span>'.l($socio_titular_familia->nombres.' '.$socio_titular_familia->apellidos, 'socios/datos_socio', array('query' => array('id' => $socio_titular_familia->id_socio, 'ret'=>$socio_seleccionado->id_socio))),
+		        '#suffix'=>'</div></div>',
+	  			);
+				}
   		}
   		else
   		{
@@ -212,24 +227,30 @@ function datos_socio_form($form, &$form_state)
 				'#title'=>t('GRUPO FAMILIAR'),
   			);
 
-  			if(validar_tipo_grupo_familiar($grupo_familiar))
-  			{
-  				$form['socios']['socio']['panel_socio']['grupo_familiar']['gf_invalido']= array(
-					'#prefix'=>'<div class="io-texto texto-gf" id="grupo-familiar-invalido">',
-		       		'#markup'=>'<span><strong>GRUPO FAMILIAR INCORRECTO - REVISAR TIPO DE GRUPO FAMILIAR</strong></span>',
-		        	'#suffix'=>'</div>',
-  				);
-  			}
+				if(!$inconsistente_gf)
+				{
+					if(validar_tipo_grupo_familiar($grupo_familiar))
+	  			{
+	  				$form['socios']['socio']['panel_socio']['grupo_familiar']['gf_invalido']= array(
+						'#prefix'=>'<div class="io-texto texto-gf" id="grupo-familiar-invalido">',
+			       		'#markup'=>'<span><strong>GRUPO FAMILIAR INCORRECTO - REVISAR TIPO DE GRUPO FAMILIAR</strong></span>',
+			        	'#suffix'=>'</div>',
+	  				);
+	  			}
+				}
 
-  			$form['socios']['socio']['panel_socio']['grupo_familiar']['tipo_gf']= array(
-				'#prefix'=>'<div class="io-texto texto-gf" id="tipo-grupo-familiar">',
-	       		'#markup'=>'<span><strong>TIPO DE GRUPO FAMILIAR: </strong>'.$grupo_familiar[0]->tipo_grupo_familiar.'</span>',
-	        	'#suffix'=>'</div>',
-  			);
+				if(!$inconsistente_gf)
+				{
+					$form['socios']['socio']['panel_socio']['grupo_familiar']['tipo_gf']= array(
+					'#prefix'=>'<div class="io-texto texto-gf" id="tipo-grupo-familiar">',
+							'#markup'=>'<span><strong>TIPO DE GRUPO FAMILIAR: </strong>'.$grupo_familiar[0]->tipo_grupo_familiar.'</span>',
+							'#suffix'=>'</div>',
+					);
 
-		    $form['socios']['socio']['panel_socio']['grupo_familiar']['listado_gf']= array(
-		    	'#markup' => get_listado_grupo_familiar_markup($grupo_familiar),
-		    );
+			    $form['socios']['socio']['panel_socio']['grupo_familiar']['listado_gf']= array(
+			    	'#markup' => get_listado_grupo_familiar_markup($grupo_familiar),
+			    );
+				}
   		}
 
 
