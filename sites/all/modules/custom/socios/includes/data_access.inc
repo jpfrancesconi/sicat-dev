@@ -991,19 +991,7 @@ function consultar_deuda($id_socio, $tipo_socio_id, $concepto)
 		//aquellos registros que no se consideren deuda.
 		$count = count($deuda);
 
-		//recorremos todo el array de deuda
-		for($i=0; $i < $count; $i++)
-		{
-			//sacamos del registro actual el periodo para ser comparado con el periodo actual
-			$periodo_comparar = date("Y-n", strtotime($deuda[$i]->mes.'/1/'.$deuda[$i]->anio));
-
-			//vemos si el periodo a comprar es mayor o igual al actual
-			if($periodo_comparar >= $periodo_actual)
-			{
-			  //en caso de que sea mayor o igual al periodo actual lo quitamos del array
-				unset($deuda[$i]);
-			}
-		}
+		
 		//retormos la deuda....o lo que quedo de ella je!
 		return $deuda;
 
