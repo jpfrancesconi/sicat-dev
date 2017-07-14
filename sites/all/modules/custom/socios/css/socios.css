@@ -312,3 +312,23 @@ div#listado-socios tbody{
     line-height: 100%;
     display: inline-block;
 }
+
+.page-socios-ingreso-socio-socio ul.vertical-tabs-list {
+display: none;
+}
+
+.page-socios-ingreso-socio-socio  .vertical-tabs.clearfix {
+margin-left: 0;
+}
+
+.page-socios-ingreso-socio-socio  h1.page-title {
+display: none;
+}
+.page-socios-ingreso-socio-socio  div#page-wrap {
+padding-top: 0;
+margin-top: 5px;
+}
+
+.page-socios-ingreso-socio-socio div#apellido-nombre-socio {
+    margin-bottom: 0;
+  }
