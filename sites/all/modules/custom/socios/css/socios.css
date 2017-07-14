@@ -235,7 +235,8 @@ input#edit-nro-doc {
     max-width: 100vw;
 }
 
-div#estado-alta-socio {
+div#estado-alta-socio,
+div#estado-baja-socio {
     margin-bottom: 10px;
 }
 
