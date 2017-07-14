@@ -309,6 +309,10 @@ function ingreso_socio_datos_socio_form($form, &$form_state)
 		drupal_get_path('module', 'socios') . '/css/socios.css',
 	);
 
+	$form['#attached']['js'] = array(
+		drupal_get_path('module', 'socios') . '/js/socio_ingreso.js',
+	);
+
 	if(strpos($_SERVER['HTTP_REFERER'], 'ingreso_socio/socio') && isset($_GET['ret']))
 	{
 		$_SESSION['retorno'] = 'socios/ingreso_socio/socio_ret';
@@ -343,6 +347,26 @@ function ingreso_socio_datos_socio_form($form, &$form_state)
 		//buscamos el socio
 		$socio_seleccionado = get_socio_por_id($id_socio_seleccionado);
 		//drupal_set_message('<pre>'.print_r($socio_seleccionado,true).'</pre>');
+		//revisamos el estado del socio
+		if(get_tipo_estado($socio_seleccionado->estado_socio_id) == 1)
+		{
+			//Si el socio esta en baja se muestra el siguiente mensaje
+			$form['socios']['socio']['estado_socio_header']= array(
+				'#prefix'=>'<div id="estado-baja-socio" class="ing-socio-en-baja">',
+						'#markup'=>'<strong>ESTADO DEL SOCIO: '.$socio_seleccionado->estado.'</strong>',
+						'#suffix'=>'</div>',
+				);
+		}
+		else {
+			//Si el socio esta en alta se muestra el siguiente mensaje
+			$form['socios']['socio']['estado_socio_header']= array(
+				'#prefix'=>'<div id="estado-alta-socio" class="ing-socio-en-alta">',
+						'#markup'=>'<strong>ESTADO DEL SOCIO: '.$socio_seleccionado->estado.'</strong>',
+						'#suffix'=>'</div>',
+				);
+		}
+
+		//drupal_set_message('<pre>'.print_r($socio_seleccionado,true).'</pre>');
 
 		//si es miembro de familia tiene que tener el numero de socio de su titular
 		if($socio_seleccionado->tipo_socio_id == 2)
@@ -361,27 +385,29 @@ function ingreso_socio_datos_socio_form($form, &$form_state)
 			$deuda_socio = consultar_deuda($id_socio_seleccionado, $socio_seleccionado->tipo_socio_id, 1);
 		}
 
-
+		//drupal_set_message('<pre>'.print_r($deuda_socio,true).'</pre>');
 
 		//mostramos un mensaje con el estado del socio y su estado de deuda
 		//preguntamos si el array de deuda tiene datos
 		if(count($deuda_socio) > 0)
 		{//si la cantidad de registros es mayor a 0 quiere decir que el socio tiene conceptos inpagos
 			$deuda = '';
-			for($i=0; $i < count($deuda_socio); $i++)
+			$i=0;
+			foreach($deuda_socio as $registro_deuda )
 			{
-				$deuda = $deuda.'<div class="fila-socio-con-deuda" id="fila-'.$i.'"><strong><span class="deuda-mes">MES: '.$deuda_socio[$i]->mes.'</span><span class = "deuda-anio">AÑO: '.$deuda_socio[$i]->anio.'</span></strong></div>';
+				$deuda = $deuda.'<div class="fila-socio-con-deuda" id="fila-'.$i.'"><strong><span class="deuda-mes">MES: '.$registro_deuda->mes.'</span><span class = "deuda-anio">AÑO: '.$registro_deuda->anio.'</span></strong></div>';
+				$i++;
 			}
 			$form['socios']['socio']['estado_con_deuda']= array(
 				'#prefix'=>'<div id="estado-deuda-socio" class="socio-con-deuda">',
-						'#markup'=>'<strong>EL SOCIO REGISTRA DEUDA</br>DETALLE DE LA DEUDA:<br></strong>'.$deuda,
+						'#markup'=>'<strong>EL SOCIO REGISTRA CUOTAS IMPAGAS</br>DETALLE:<br></strong>'.$deuda,
 						'#suffix'=>'</div>',
 				);
 		}
 		else {
 			$form['socios']['socio']['estado_sin_deuda']= array(
 				'#prefix'=>'<div id="estado-deuda-socio" class="socio-sin-deuda">',
-						'#markup'=>'<strong>EL SOCIO NO REGISTRA DEUDA</strong>',
+						'#markup'=>'<strong>EL SOCIO NO REGISTRA CUOTAS IMPAGAS</strong>',
 						'#suffix'=>'</div>',
 				);
 		}

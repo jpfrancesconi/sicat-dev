@@ -235,7 +235,12 @@ input#edit-nro-doc {
     max-width: 100vw;
 }
 
-.socio-con-deuda {
+div#estado-alta-socio {
+    margin-bottom: 10px;
+}
+
+.socio-con-deuda,
+.ing-socio-en-baja {
     border: solid 2px #d00000;
     background-color: #ffcbcb;
     color: #dd0000;
@@ -244,7 +249,8 @@ input#edit-nro-doc {
     font-size: 1.4em;
 }
 
-.socio-sin-deuda {
+.socio-sin-deuda,
+.ing-socio-en-alta {
     border: solid 2px green;
     background-color: #c3f5c3;
     padding: 10px;
