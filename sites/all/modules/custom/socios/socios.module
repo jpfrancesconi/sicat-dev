@@ -93,7 +93,7 @@ function socios_permission(){
     'title' => t('Gestion de socios - Buscar socio para gestion de cobranzas'),
     'description' => t('Permisos para acceder a buscar un socio para gestionar un socio para su cobranza.'),
   ),
-  'acceso a generar plan de pago socio' =>  array(
+  'acceso a generar plan de pago de un socio' =>  array(
     'title' => t('Gestion de socios - Plan de Pago de un socio'),
     'description' => t('Permisos para acceder al registro de un plan de pago de un socio.'),
   ),
