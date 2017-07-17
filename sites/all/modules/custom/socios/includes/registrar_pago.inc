@@ -320,28 +320,30 @@ function registrar_pagos_form($form, &$form_state)
 
 	      );
 
-		$form['datos_pago']['aceptar'] = array(
-			'#type'=>'submit',
-			'#value'=>'PROCESAR PAGOS',
-			'#validate'=>array('registrar_pagos_form_validate'),
-			'#submit'=>array('registrar_pagos_form_submit')
-		);
+				if(es_usr_secretaria_control($roles))
+				{
+					$form['datos_pago']['anular'] = array(
+						'#type'=>'submit',
+						'#value'=>'ANULAR PAGOS',
+						'#executes_submit_callback'=>false,
+					);
+				}
 
-		$form['plan_pago']['volver'] = array(
-			'#type'=>'submit',
-			'#value'=>'VOLVER',
-			'#limit_validation_errors'=>array(),
-			'#submit'=>array('registrar_pago_socio_volver_form'),
-		);
+				$form['datos_pago']['aceptar'] = array(
+					'#type'=>'submit',
+					'#value'=>'PROCESAR PAGOS',
+					'#validate'=>array('registrar_pagos_form_validate'),
+					'#submit'=>array('registrar_pagos_form_submit')
+				);
 
-		if(es_usr_secretaria_control($roles))
-		{
-			$form['datos_pago']['anular'] = array(
-				'#type'=>'submit',
-				'#value'=>'ANULAR PAGOS',
-				'#executes_submit_callback'=>false,
-			);
-		}
+				$form['plan_pago']['volver'] = array(
+					'#type'=>'submit',
+					'#value'=>'VOLVER',
+					'#limit_validation_errors'=>array(),
+					'#submit'=>array('registrar_pago_socio_volver_form'),
+				);
+
+
 
 
 		$form['datos_pago']['total'] = array(
