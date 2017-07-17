@@ -332,3 +332,31 @@ margin-top: 5px;
 .page-socios-ingreso-socio-socio div#apellido-nombre-socio {
     margin-bottom: 0;
   }
+
+.page-socios-cobranza .form-item.form-type-textfield.form-item-nro-socio {
+      float: none;
+}
+
+.page-socios-cobranza .form-item.form-type-textfield.form-item-nro-doc {
+    float: none;
+    margin-top: 40px;
+    width: 85%;
+}
+
+.page-socios-cobranza .form-item.form-type-textfield.form-item-nombres {
+    width: 27%;
+    margin-right: 20px;
+}
+
+.page-socios-cobranza .form-item.form-type-textfield.form-item-nombres input {
+    width: auto;
+}
+
+.page-socios-cobranza .form-item.form-type-textfield.form-item-apellidos {
+    float: left;
+    width: 66%;
+}
+
+.page-socios-cobranza .form-item.form-type-textfield.form-item-apellidos input#edit-apellidos {
+    width: 40%;
+}
