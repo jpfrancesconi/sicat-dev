@@ -44,8 +44,8 @@ function plan_pago_socio_form($form, &$form_state)
 
     //buscamos los datos del socio
     $socio = get_socio_por_id($id_socio);
-    //buscamos la deuda del socio
-    $deuda = consultar_deuda($id_socio, $socio->tipo_socio_id);
+    //buscamos la deuda del socio para el concepto 1 cuota social
+    $deuda = consultar_deuda($id_socio, $socio->tipo_socio_id, 1);
 
     //guardamos el array de la deuda para usarlo luego en el submit del formualario
     $_SESSION['deuda'] = $deuda;
