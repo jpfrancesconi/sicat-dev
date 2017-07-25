@@ -991,7 +991,7 @@ function consultar_deuda($id_socio, $tipo_socio_id, $concepto)
 		//aquellos registros que no se consideren deuda.
 		$count = count($deuda);
 
-		
+
 		//retormos la deuda....o lo que quedo de ella je!
 		return $deuda;
 
@@ -1238,8 +1238,8 @@ function get_items_cta_cte_por_recibo($id_recibo)
 	return $datos_socio_pago;
 }
 
-//genera la liquidacion correspondiente a un mes y a un año
-function generar_liquidacion_mensual($mes, $anio)
+//genera la liquidacion correspondiente a un mes y a un año y ademas se pega el usuario que la generó
+function generar_liquidacion_mensual($mes, $anio, $uid)
 {
 	if($mes == 1)
 	{
@@ -1263,7 +1263,7 @@ function generar_liquidacion_mensual($mes, $anio)
 	}
 	else {
 		//llamamos al procedimiento almacenado que genera la liquidacion de todo el mes
-		$resultado_liquidacion = db_query('CALL PRC_GENERAR_MOVIMIENTOS(:anio,:mes)',array(':anio' => $anio, ':mes' => $mes))->fetchObject();
+		$resultado_liquidacion = db_query('CALL PRC_GENERAR_MOVIMIENTOS(:anio,:mes, :uid)',array(':anio' => $anio, ':mes' => $mes, ':uid' => $uid))->fetchObject();
 		//drupal_set_message('<pre>'.print_r($resultado_liquidacion, true).'</pre>');
 	}
 

@@ -105,7 +105,7 @@ function generar_liquidacion_callback()
   //recuperamos los valores que la peticion ajax nos envia
   $mes = (isset($_GET['mes']) ? $_GET['mes'] : null);
   $anio = (isset($_GET['anio']) ? $_GET['anio'] : null);
-
+  $uid = $GLOBALS['user']->uid;
   //vemos si alguno de los parametros es null no se puede  ejecutar el procedimiento
   if(is_null(mes) || is_null(anio))
   {
@@ -114,7 +114,7 @@ function generar_liquidacion_callback()
   }
   else {
     //ejecutamos el procedimiento si el resultado da 0, no hay error
-    $resultado_liquidacion = generar_liquidacion_mensual($mes,$anio);
+    $resultado_liquidacion = generar_liquidacion_mensual($mes,$anio, $uid);
   }
 
   //el print es el valor que se retorna a la peticion ajax
