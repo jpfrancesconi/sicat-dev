@@ -22,6 +22,7 @@ include 'includes/plan_pago_socio.inc';
 include 'includes/test.inc';
 include 'includes/imprimir_cuenta_socio.inc';
 include 'includes/generar_liquidacion.inc';
+include 'includes/gestionar_recibos.inc';
 
 function socios_init(){
    drupal_add_js(array('custom' => array('generar_liquidacion' => url('socios/generar_liquidacion_ajax'))), 'setting');
@@ -108,6 +109,10 @@ function socios_permission(){
   'acceso a ingreso socio - socio' =>  array(
     'title' => t('Gestion de socios - Control de Ingreso de Socios - Ver datos del socio'),
     'description' => t('Permisos para acceder a ver los datos  del socio en el control de Ingresos de Socios.'),
+  ),
+  'acceso a recibos del socio' =>  array(
+    'title' => t('Gestion de socios - Gestion Recibos de Socio'),
+    'description' => t('Permisos para acceder a gestionar los recibos de un socio.'),
   ),
   );
 }
@@ -284,7 +289,14 @@ function socios_menu()
     'page arguments' => array('ingreso_socio_datos_socio_form'),
     'access arguments' => array('acceso a ingreso socio - socio'),
     'expanded' => TRUE,
-  );//imprimir_cuenta_socio.inc
+  );
+  $items['socios/recibos'] = array(
+    'title' => 'RECIBOS DEL SOCIO',
+    'page callback' => 'drupal_get_form',
+    'page arguments' => array('gestionar_recibos_form'),
+    'access arguments' => array('acceso a recibos del socio'),
+    'expanded' => TRUE,
+  );//gestionar_recibos.inc
   /*$items['socios/test'] = array(
     'title' => 'TEST',
     'page callback' => 'drupal_get_form',
