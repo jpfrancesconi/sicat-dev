@@ -17,9 +17,7 @@ function generar_liquidacion_form($form, &$form_state)
   $form['#attached']['css'] = array(
 		drupal_get_path('module', 'socios') . '/css/cobranzas.css',
 	);
-
-
-
+  
 	//buscamos los roles del usuario logueado
 	$roles = get_roles_usuario_logueado();
 
