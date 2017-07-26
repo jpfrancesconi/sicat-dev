@@ -1292,16 +1292,23 @@ function generar_liquidacion_mensual($mes, $anio, $uid)
 	}
 	else if(!existe_liquidacion($mes_ant, $anio_ant))
 	{
-		//si existe retornaremos un valor 1 que indicara que ya existe
+		//si existe retornaremos un valor 2 que indicara que no existe liquidacion para el mes anio anterior
 		$resultado_liquidacion = 2;
 	}
 	else {
 		//llamamos al procedimiento almacenado que genera la liquidacion de todo el mes
 		$resultado_liquidacion = db_query('CALL PRC_GENERAR_MOVIMIENTOS(:anio,:mes, :uid)',array(':anio' => $anio, ':mes' => $mes, ':uid' => $uid))->fetchObject();
-		//drupal_set_message('<pre>'.print_r($resultado_liquidacion, true).'</pre>');
+		//$resultado_liquidacion = db_query('CALL PRC_PRUEBA_LIQ(:anio,:mes, :uid)',array(':anio' => $anio, ':mes' => $mes, ':uid' => $uid))->fetchObject();
+
+		//drupal_set_message('<pre>'.print_r($resultado_liquidacion->EXITO, true).'</pre>');
 	}
 
-	return $resultado_liquidacion;
+	//revisamos si viene con un mensaje de exito sino retornaremos un 3 que representa un error en la ejecucuinon del procedimiento
+	if(isset($resultado_liquidacion->EXITO))
+		return $resultado_liquidacion->EXITO;
+	else {
+		return 3;
+	}
 }
 
 function existe_liquidacion($mes, $anio)
@@ -1435,7 +1442,7 @@ function tiene_recibo($id_socio)
 										INNER JOIN io_cta_cte cc ON cc.id_cta_cte = cci.cta_cte_id
 										INNER JOIN io_socio soc ON soc.id_socio = cc.socio_id
 										WHERE soc.id_socio = :id_socio', array(':id_socio'=>$id_socio))->fetchObject();
-										  
+
 	if($socio->cant_recibos > 0)
 	{
 		return true;

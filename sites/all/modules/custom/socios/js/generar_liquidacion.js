@@ -17,9 +17,9 @@
              $("#wait").css("display", "none");
              var mensaje = '';
 
-             if(res == 0)
+             if(res == 'EXITO')
              {
-               $("#texto-msj-resultado").css({"background":"rgba(205, 10, 10, 0.11)", "border":"1px solid #cd0a0a"});
+               $("#texto-msj-resultado").css({"background":"#f8fff0", "border":"1px solid #bbee77"});
                mensaje='SE GENERÓ LA LIQUIDACION PARA EL PERIODO MES: '+paramMes+' AÑO:'+paramAnio+' CORRECTAMENTE!.';
              }
              else if(res == 1)
@@ -34,7 +34,8 @@
              }
              else
              {
-               mensaje='SE GENERÓ LA LIQUIDACION PARA EL PERIODO MES: '+paramMes+' AÑO:'+paramAnio+' CORRECTAMENTE!.';
+               $("#texto-msj-resultado").css({"background":"rgba(205, 10, 10, 0.11)", "border":"1px solid #cd0a0a"});
+               mensaje='OCURRIÓ UN ERROR LA LIQUIDACION PARA EL PERIODO MES: '+paramMes+' AÑO:'+paramAnio+' NO SE HA GENERADO.';
              }
                //mensaje='OCURRIÓ UN ERROR LA LIQUIDACION PARA EL PERIODO MES: '+paramMes+' AÑO:'+paramAnio+' NO SE HA GENERADO.';
              $("#msj-resultado").css("display", "block");
