@@ -134,6 +134,7 @@ function gestionar_socios_form($form, &$form_state)
     'categoria_socio'=>t('CAT. O TIPO GRUPO FAMILIAR'),
     'tipo_socio'=>t('TIPO DE SOCIO'),
 		'cobrador'=>t('COBRADOR'),
+		'operaciones'=>t('OPERACIONES'),
   );
 
 
@@ -194,7 +195,7 @@ function gestionar_socios_form($form, &$form_state)
 				'categoria_socio'=> $socio->categoria_socio,
 				'tipo_socio'=> $socio->tipo_socio,
 				'cobrador'=> $socio->apellido_personal,
-				//l('Ver', 'microcreditos/ver_observacion_carpeta', array('query' => array('id' => $carpeta['id_carpeta_personal']))),
+				'operaciones'=> (tiene_recibo($id_socio) ? l('Recibos', 'socios/recibos', array('query' => array('id_s' => $id_socio))) : ''),
 				'id_socio'=> array(
 					'data'=> array(
 				  		'#type' => 'hidden',

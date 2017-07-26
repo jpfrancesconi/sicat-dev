@@ -114,6 +114,10 @@ function socios_permission(){
     'title' => t('Gestion de socios - Gestion Recibos de Socio'),
     'description' => t('Permisos para acceder a gestionar los recibos de un socio.'),
   ),
+  'acceso a anular recibo' =>  array(
+    'title' => t('Gestion de socios - Anular Recibos de Socio'),
+    'description' => t('Permisos para acceder a anular un recibo de un socio.'),
+  ),
   );
 }
 
@@ -295,6 +299,13 @@ function socios_menu()
     'page callback' => 'drupal_get_form',
     'page arguments' => array('gestionar_recibos_form'),
     'access arguments' => array('acceso a recibos del socio'),
+    'expanded' => TRUE,
+  );//gestionar_recibos.inc
+  $items['socios/anular_recibo'] = array(
+    'title' => 'ANULAR RECIBO',
+    'page callback' => 'drupal_get_form',
+    'page arguments' => array('anular_recibo_form'),
+    'access arguments' => array('acceso a anular recibo'),
     'expanded' => TRUE,
   );//gestionar_recibos.inc
   /*$items['socios/test'] = array(

@@ -46,6 +46,21 @@ function gestionar_recibos_form($form, &$form_state)
     //buscamos los roles del usuario logueado
   	$roles = get_roles_usuario_logueado();
 
+    //vemos si el usuario tiene el rol control para permitir anular o no recibos
+    $user_anula = false;
+    if(es_usr_secretaria_control($roles))
+    {
+      $user_anula = true;
+    }
+    //TODO mostrar los datos del socio
+    /*
+    $socio = get_socio_por_id
+    $form['datos_socio'] = array(
+      '#markup'=>'<div id="datos_socio">
+                    <div id=
+                  </div>'
+    );*/
+    
     //fieldset para los filtros de busqueda
     $form['filtros_recibos'] = array(
       '#type'=>'fieldset',
@@ -75,7 +90,7 @@ function gestionar_recibos_form($form, &$form_state)
     );
 
      $form['recibos_socio']['recibos'] = array(
-      '#markup'=>get_listado_recibos_markup($id_socio, $estado),
+      '#markup'=>get_listado_recibos_markup($id_socio, $estado, $user_anula),
     );
   }
 
@@ -141,7 +156,7 @@ function gestionar_recibos_volver_form($form, &$form_state)
   $form_state['redirect'] = $retorno;
 }
 
-function get_listado_recibos_markup($id_socio, $estado)
+function get_listado_recibos_markup($id_socio, $estado, $user_anula)
 {
   $recibos = array();
   $recibos_mostrar = array();
@@ -159,11 +174,20 @@ function get_listado_recibos_markup($id_socio, $estado)
   {
     //ahora recorremos todos los recibos y recuperamos los datos que usamos para mostrar que usaremos
     for ($i=0;$i<count($recibos);$i++) {
+      //si el estado es anulado le damos la clases recibo-anulado sino recibo-no-anulado
+      $clase_estado = ($recibos[$i]->id_estado_recibo == 2 ? 'recibo-anulado' : 'recibo-no-anulado');
       $recibos_mostrar[$i]['fecha'] = $recibos[$i]->fecha_emision;
-      $recibos_mostrar[$i]['estado'] = $recibos[$i]->estado;
+      $recibos_mostrar[$i]['estado'] = '<span class="'.$clase_estado.'">'.$recibos[$i]->estado.'</span>';
       $recibos_mostrar[$i]['importe_total'] = $recibos[$i]->importe_total;
       $recibos_mostrar[$i]['ver'] = '<a href="">VER/IMPRIMIR</a>';
-      $recibos_mostrar[$i]['anular'] = '<a href="">ANULAR</a>';
+      //se permite anular solo si el recibo no esta previamente anulado y el usuario tiene el rol control
+      if($recibos[$i]->id_estado_recibo != 2 && $user_anula)
+      {
+        $recibos_mostrar[$i]['anular'] = l('ANULAR', 'socios/anular_recibo', array('query' => array('id_r' => $recibos[$i]->id_recibo)));
+      }
+      else {
+        $recibos_mostrar[$i]['anular'] = '-';
+      }
     }
   }
 
@@ -209,12 +233,54 @@ function anular_recibo_form($form, &$form_state)
       '#markup'=>get_listado_items_recibo($id_recibo)
     );
 
-    /*$form['motivo_anulacion'] = array(
+    $form['motivo_anulacion'] = array(
       '#type'=>'textarea',
-      '#'
-    );*/
+      '#title'=>'Motivo de anulación',
+      '#required'=>true,
+      '#resizable'=>false,
+      '#rows'=>3,
+      '#description'=>'Motivo por el cual se está anulando el recibo'
+    );
+
+    $form['anular_recibo'] = array(
+      '#type'=>'submit',
+      '#value'=>'ANULAR RECIBO',
+      '#submit'=>array('anular_recibo_form_submit'),
+      '#attributes' => array('onclick' => 'if(!confirm("Esta seguro que desea anular el recibo?")){return false;}'),
+    );
   }
 
+  $form['cancelar'] = array(
+    '#type'=>'submit',
+    '#value'=>'CANCELAR',
+    '#limit_validation_errors'=>array(),
+    '#submit'=>array('anular_recibos_volver_form'),
+  );
+  return $form;
+
+}
+
+function anular_recibo_form_submit($form, &$form_state)
+{
+  $uid = $GLOBALS['user']->uid;
+  $id_recibo = $form_state['values']['id_recibo'];
+  $motivo_anulacion = $form_state['values']['motivo_anulacion'];
+
+  $transaction = db_transaction();
+  try
+  {
+    //ejecutamos la fucion que anula el recibo
+    anular_recibo($id_recibo, $motivo_anulacion);
+    $mensaje = 'EL RECIBO FUE ANULADO CORRECTAMENTE';
+    unset($transaction);
+    drupal_set_message($mensaje);
+    anular_recibos_volver_form($form, $form_state);
+  }
+  catch (Exception $e) {
+    $transaction->rollback();
+    watchdog_exception('pago', $e);
+    drupal_set_message('<pre>'. print_r("Error en la trasaccion - Comunicarse con el proveedor de sistemas.", TRUE) .'</pre>');
+  }
 
 }
 
@@ -242,7 +308,20 @@ function get_listado_items_recibo($id_recibo)
 
   $header = array(t('FECHA'),t('CONCEPTO'), t('IMPORTE ($)'));
 
-  $output = theme('table', array('header' => $header, 'rows' => $recibos_mostrar));
+  $output = theme('table', array('header' => $header, 'rows' => $items_recibo_mostrar));
 
   return $output;
+}
+
+function anular_recibos_volver_form($form, &$form_state)
+{
+  $retorno = array($_SESSION['retorno']);
+  unset($_SESSION['retorno']);
+  if(isset($_SESSION['retorno_params']))
+  {
+    array_push($retorno, $_SESSION['retorno_params']);
+    unset($_SESSION['retorno_params']);
+  }
+  //drupal_set_message('<pre>'.print_r($retorno, true).'</pre>');
+  $form_state['redirect'] = $retorno;
 }
