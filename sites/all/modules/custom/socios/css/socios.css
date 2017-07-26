@@ -354,9 +354,21 @@ margin-top: 5px;
 
 .page-socios-cobranza .form-item.form-type-textfield.form-item-apellidos {
     float: left;
-    width: 66%; 
+    width: 66%;
 }
 
 .page-socios-cobranza .form-item.form-type-textfield.form-item-apellidos input#edit-apellidos {
     width: 40%;
+}
+
+.recibo-anulado
+{
+  color:red;
+  font-weight: bold;
+}
+
+.recibo-no-anulado
+{
+  color: green;
+  font-weight: bold;
 }

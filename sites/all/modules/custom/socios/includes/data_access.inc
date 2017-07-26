@@ -341,6 +341,33 @@ function get_tipos_socio_select($agregar=NULL)
 	return $tipos_socio;
 }
 
+function get_estados_recibos_select($agregar=NULL)
+{
+	$result = db_query('select er.id_estado_recibo, er.nombre
+											from io_estado_recibo as er
+											')->fetchAll();
+
+	//drupal_set_message('<pre>'.print_r($consorcio, true).'</pre>');
+	if(empty($result[0]))
+		$estados_recibos = null;
+	else
+	{
+		$estados_recibos = array();
+		$row = array();
+
+		if(!is_null($agregar))
+			$estados_recibos[0]=$agregar;
+
+		foreach($result as $record){
+			$row = (array)$record;
+			$estados_recibos[$row['id_estado_recibo']] = $row['nombre'];
+		}
+	}
+
+	return $estados_recibos;
+}
+
+
 //obtiene todos los estados de socio para mostrarlos en un componente select
 function get_estados_socio_select($agregar=NULL)
 {
@@ -1325,6 +1352,98 @@ function get_id_socio_por_nro_socio($nro_socio)
 	}
 }
 
+//recpera todos los recibos de un socio
+function get_recibos_socio($id_socio, $estado = NULL)
+{
+	//definimos el filtro_estado en vacio
+	$filtro_estado = '';
+	if(!is_null($estado))
+	{
+			$filtro_estado = ' AND est.id_estado_recibo = '.$estado;
+	}
+
+	$recibos_socio = db_query('
+	SELECT re.id_recibo, date_format(re.fecha_emision, \'%d/%m/%Y\') as fecha_emision, re.mes, re.anio, est.id_estado_recibo, est.nombre as estado, SUM(ri.importe) as importe_total
+	FROM io_recibo re
+	INNER JOIN io_recibo_item ri ON  ri.recibo_id = re.id_recibo
+	INNER JOIN io_rec_est_rec rest ON rest.recibo_id = re.id_recibo
+	INNER JOIN io_estado_recibo est ON est.id_estado_recibo = rest.estado_recibo_id
+	INNER JOIN io_cta_cte_item cci ON  cci.id_cta_cte_item = ri.cta_cte_item_id
+	INNER JOIN io_cta_cte cc ON cc.id_cta_cte = cci.cta_cte_id
+	INNER JOIN io_socio soc ON soc.id_socio = cc.socio_id
+	WHERE soc.id_socio = :id_socio
+	AND rest.id_rec_est_rec IN (SELECT MAX(rest2.id_rec_est_rec) FROM io_rec_est_rec rest2 WHERE rest2.recibo_id = re.id_recibo)'.$filtro_estado.'
+	GROUP BY re.id_recibo',array(':id_socio' => $id_socio))->fetchAll();
+
+	return $recibos_socio;
+}
+
+function get_items_recibo($id_recibo)
+{
+	$items_recibo = db_query('SELECT ri.id_recibo_item, date_format(ri.fecha, \'%d/%m/%Y\') as fecha, ri.concepto, ri.importe, ri.cta_cte_item_id, ri.recibo_id
+														FROM io_recibo re
+														INNER JOIN io_rec_est_rec res ON res.recibo_id = re.id_recibo
+														INNER JOIN io_estado_recibo est ON est.id_estado_recibo = res.estado_recibo_id
+														INNER JOIN io_recibo_item ri ON ri.recibo_id = re.id_recibo
+														WHERE re.id_recibo  = :id_recibo
+														AND res.id_rec_est_rec IN (SELECT MAX(rest2.id_rec_est_rec) FROM io_rec_est_rec rest2 WHERE rest2.recibo_id = re.id_recibo)', array(':id_recibo'=> $id_recibo))->fetchAll();
+
+	return $items_recibo;
+}
+
+//funcion que reliza la accion de pasar un recibo a estado anulado
+function anular_recibo($id_recibo, $motivo_anulacion)
+{
+	//recuperamos el id del usuario que ejecuta la function
+	$uid = $GLOBALS['user']->uid;
+
+	//el hecho de anular un recibo implica
+	//pasar el recibo a estado ANULADO (2), se agrega este estado en el recibo
+	db_insert('io_rec_est_rec')
+	->fields(array(
+		'recibo_id'=>$id_recibo,
+		'estado_recibo_id'=>2,
+		'observacion'=>$motivo_anulacion,
+		'USUARIO_ALTA'=>$uid,
+		'USUARIO_MOD'=>$uid))
+	->execute();
+
+	//buscamos el recibo y sus items de cuenta corriente
+	$items_recibo = get_items_recibo($id_recibo);
+//	drupal_set_message('<pre>'.print_r($items_recibo,true).'</pre>');
+//	drupal_set_message(count($items_recibo));
+	//recorremos los items y volvemos a no pagados los items
+	for ($i=0;$i<count($items_recibo);$i++) {
+
+		$cant = db_update('io_cta_cte_item')
+		->fields(array(
+			'pagado'=>0,
+			'fecha_pago'=>NULL
+		))
+		->condition('id_cta_cte_item', $items_recibo[$i]->cta_cte_item_id, '=')
+		->execute();
+	}
+}
+
+//consulta si el socio tiene recibos asociados
+function tiene_recibo($id_socio)
+{
+	$socio = db_query('SELECT COUNT(*) as cant_recibos
+										FROM io_recibo re
+										INNER JOIN io_recibo_item ri ON  ri.recibo_id = re.id_recibo
+										INNER JOIN io_cta_cte_item cci ON  cci.id_cta_cte_item = ri.cta_cte_item_id
+										INNER JOIN io_cta_cte cc ON cc.id_cta_cte = cci.cta_cte_id
+										INNER JOIN io_socio soc ON soc.id_socio = cc.socio_id
+										WHERE soc.id_socio = :id_socio', array(':id_socio'=>$id_socio))->fetchObject();
+
+	if(isset($socio->cant_recibos))
+	{
+		return true;
+	}
+	else {
+		return false;
+	}
+}
 //retorna el id del socio si es titular o unico
 /*function es_titular_o_unico($nro_socio, $secuencia, $tipo_doc, $num_doc)
 {
