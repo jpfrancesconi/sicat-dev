@@ -179,7 +179,7 @@ function get_listado_recibos_markup($id_socio, $estado, $user_anula)
       $recibos_mostrar[$i]['fecha'] = $recibos[$i]->fecha_emision;
       $recibos_mostrar[$i]['estado'] = '<span class="'.$clase_estado.'">'.$recibos[$i]->estado.'</span>';
       $recibos_mostrar[$i]['importe_total'] = $recibos[$i]->importe_total;
-      $recibos_mostrar[$i]['ver'] = '<a href="">VER/IMPRIMIR</a>';
+      $recibos_mostrar[$i]['ver'] = l('VER/IMPRIMIR', 'reports/sicatReciboPorId', array('attributes' => array('target'=>'_blank'), 'query' => array('id_recibo' => $recibos[$i]->id_recibo)));
       //se permite anular solo si el recibo no esta previamente anulado y el usuario tiene el rol control
       if($recibos[$i]->id_estado_recibo != 2 && $user_anula)
       {

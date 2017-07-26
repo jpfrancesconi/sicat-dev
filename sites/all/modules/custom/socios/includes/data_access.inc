@@ -1435,8 +1435,8 @@ function tiene_recibo($id_socio)
 										INNER JOIN io_cta_cte cc ON cc.id_cta_cte = cci.cta_cte_id
 										INNER JOIN io_socio soc ON soc.id_socio = cc.socio_id
 										WHERE soc.id_socio = :id_socio', array(':id_socio'=>$id_socio))->fetchObject();
-
-	if(isset($socio->cant_recibos))
+										  
+	if($socio->cant_recibos > 0)
 	{
 		return true;
 	}
