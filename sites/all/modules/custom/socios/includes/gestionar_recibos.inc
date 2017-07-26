@@ -60,7 +60,7 @@ function gestionar_recibos_form($form, &$form_state)
                     <div id=
                   </div>'
     );*/
-    
+
     //fieldset para los filtros de busqueda
     $form['filtros_recibos'] = array(
       '#type'=>'fieldset',
